@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Tims Brettspielmarathon</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light only">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@400;700&display=swap">
+<style>
+/* A2: Comic-Heft. Weiße Seite, schwarze Panels, Bangers-Schrift, Sprechblasen */
+:root{color-scheme:light only;--ink:#111;
+ --p0:#ff3d3d;--p0l:#ffd9d9;--p1:#ffcc00;--p1l:#fff3bf;--p2:#00a6ed;--p2l:#cdeeff;--p3:#7cc000;--p3l:#e5f6c8;--p4:#ff7a00;--p4l:#ffe2c7;--p5:#d63af9;--p5l:#f6d8ff;
+ --fd:"Bangers",Impact,sans-serif;--fb:"Comic Neue","Archivo",system-ui,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:#fff;color:#111;font:17px/1.4 var(--fb);font-weight:700;padding:20px 16px 60px}
+.wrap{max-width:980px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+header{border:5px solid #111;padding:18px;display:flex;flex-direction:column;gap:10px;background:#00a6ed;
+ background-image:radial-gradient(rgba(255,255,255,.35) 3px,transparent 3.5px);background-size:14px 14px;position:relative}
+.eyebrow{font-family:var(--fd);font-size:1.1rem;letter-spacing:.06em;background:#ffcc00;border:3px solid #111;align-self:flex-start;padding:2px 10px;transform:rotate(-2deg)}
+h1{font-family:var(--fd);font-weight:400;font-size:clamp(2.6rem,10vw,4.6rem);line-height:.9;margin:0;color:#ffcc00;-webkit-text-stroke:2.5px #111;text-shadow:5px 5px 0 #111;letter-spacing:.02em;transform:rotate(-2deg)}
+h1 span{color:inherit}
+.dateline{display:flex;gap:8px;flex-wrap:wrap}
+.pill{background:#fff;border:3px solid #111;border-radius:50% / 40%;padding:4px 14px;font-weight:700}
+.me{border:5px solid #111;padding:12px 14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:#fff3bf}
+.me label{font-family:var(--fd);font-size:1.4rem;letter-spacing:.04em}
+input{font:inherit;border:3px solid #111;padding:6px 10px;min-width:0;background:#fff}
+button{font:400 1.15rem var(--fd);letter-spacing:.05em;cursor:pointer;border:3px solid #111;background:var(--c,#ff3d3d);color:#fff;padding:4px 16px;-webkit-text-stroke:.6px #111;transform:skew(-6deg)}
+button.ghost{background:#fff;color:#111;-webkit-text-stroke:0}
+button:disabled{opacity:.5}
+.tabs{display:flex;gap:10px}.tabs button{background:#fff;color:#111;-webkit-text-stroke:0}.tabs button[aria-selected="true"]{background:#111;color:#ffcc00}
+.status{min-height:1em}
+.timeline{display:flex;flex-direction:column;gap:16px}
+.slot{display:grid;grid-template-columns:1fr;gap:0}
+.slot .t{font-family:var(--fd);font-size:1.4rem;letter-spacing:.05em;background:#ffcc00;border:4px solid #111;border-bottom:none;justify-self:start;padding:2px 14px}
+.slot .t::before{content:"UM "}
+.games{display:grid;gap:0;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));border:5px solid #111;background:#111;gap:5px}
+.game{background:#fff;display:flex;flex-direction:column;gap:10px;padding:14px}
+.top{display:flex;gap:12px;align-items:center;background:var(--c);margin:-14px -14px 0;padding:12px 14px;background-image:radial-gradient(rgba(255,255,255,.35) 3px,transparent 3.5px);background-size:12px 12px;border-bottom:5px solid #111}
+.cover{width:90px;height:90px;flex:none;border:4px solid #111;background:#fff;object-fit:contain;transform:rotate(-3deg)}
+.cover.ph{display:grid;place-items:center;font-family:var(--fd);font-size:2.4rem;color:var(--c)}
+.tinfo{display:flex;flex-direction:column;gap:4px;min-width:0}
+.ghead{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+h3{font-family:var(--fd);font-weight:400;font-size:1.9rem;letter-spacing:.03em;line-height:1;margin:0;color:#fff;-webkit-text-stroke:1.5px #111;text-shadow:3px 3px 0 #111}
+.tag{font-family:var(--fd);background:#ffcc00;border:3px solid #111;padding:0 8px;font-size:1rem;letter-spacing:.05em;transform:rotate(4deg)}
+.tinfo .meta{background:#fff;border:3px solid #111;align-self:flex-start;padding:0 8px;font-size:.9rem}
+.desc{margin:6px 0 0;background:#fff;border:3px solid #111;border-radius:40px;padding:12px 18px;position:relative}
+.desc::before{content:"";position:absolute;left:30px;top:-17px;border:8px solid transparent;border-bottom:14px solid #111}
+.desc::after{content:"";position:absolute;left:33px;top:-10px;border:5px solid transparent;border-bottom:10px solid #fff}
+.seats{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
+.pip{width:22px;height:26px;border-radius:11px 11px 3px 3px;border:3px solid #111;background:#fff}
+.pip.taken{background:var(--c)}.pip.host{background:#ffcc00}
+.count{font-family:var(--fd);font-size:1.15rem;letter-spacing:.05em;margin-left:6px}.count.open{color:#2a9d00}.count.full{color:#ff3d3d}
+.names{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:3px solid #111;padding:0 10px;background:var(--cl);border-radius:50% / 45%}
+.chip.host{background:#ffcc00}.chip.mine{background:var(--c);color:#fff}
+.links{display:flex;gap:12px}.links a{color:#111;text-decoration-thickness:3px;text-decoration-color:var(--c)}
+.actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.meta{font-size:.9rem}
+.wait{font-size:.9rem}.note{color:#ff3d3d}
+.blocks{display:grid;gap:5px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));border:5px solid #111;background:#111}
+.block{background:#fff;padding:14px;display:flex;flex-direction:column;gap:6px}
+.big{font-family:var(--fd);font-size:3rem;color:var(--c);-webkit-text-stroke:1.5px #111}
+[hidden]{display:none!important}
+
+.stats{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.rate{font-family:var(--fd);font-size:1.15rem;letter-spacing:.04em;background:#111;color:#ffcc00;border:3px solid #111;padding:0 8px;transform:rotate(-3deg)}
+.cx{display:inline-flex;align-items:center;gap:6px;border:3px solid #111;background:#fff;padding:1px 8px;font-size:.88rem}
+.cx i{display:inline-flex;gap:3px;font-style:normal}
+.cx b{width:12px;height:12px;border:2px solid #111;background:#fff;transform:rotate(45deg)}
+.cx b.on{background:#111}
+.cx b.half{background:linear-gradient(90deg,#111 50%,#fff 50%)}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Geburtstag · Brettspielmarathon</span>
+    <h1><span class="a">Tims</span> <span class="b">Brettspiel</span><span class="c">marathon</span></h1>
+    <div class="dateline"><span class="pill d">So, 27.12.2026</span><span class="pill t mono">08:00 → 02:00</span><span class="pill h">18 Stunden Spielspaß</span></div>
+  </header>
+
+  <div class="me">
+    <label for="myname">Dein Name</label>
+    <input id="myname" placeholder="z. B. Jonas K." maxlength="30">
+    <span class="meta">Mit diesem Namen buchst du. Austragen geht nur auf diesem Gerät.</span>
+  </div>
+
+  <nav class="tabs" role="tablist">
+    <button role="tab" id="tab-plan" aria-selected="true">Spielplan</button>
+    <button role="tab" id="tab-food" aria-selected="false">Zuschauer &amp; Essen</button>
+  </nav>
+  <div class="status" id="status">Lade Spielplan …</div>
+
+  <section id="view-plan"><div class="timeline" id="timeline"></div></section>
+  <section id="view-food" hidden>
+    <p class="meta" style="margin:0 0 12px">Zuschauer tragen sich pro Zeitblock ein. „Vor Ort“ zählt Tim, alle Mitspieler mit Spielstart im Block und die Zuschauer, jede Person einmal.</p>
+    <div class="blocks" id="blocks"></div>
+  </section>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt=v=>{v=((v%1440)+1440)%1440;return String(Math.floor(v/60)).padStart(2,"0")+":"+String(v%60).padStart(2,"0");};
+const norm=s=>String(s||"").trim().toLowerCase();
+const bggLink=g=>g.bgg||("https://boardgamegeek.com/geeksearch.php?action=search&objecttype=boardgame&q="+encodeURIComponent(g.name));
+const vidLink=g=>g.video||("https://www.youtube.com/results?search_query="+encodeURIComponent(g.name+" Regeln erklärt"));
+
+function store(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v);}catch(e){return null;}}
+let code=store("bsm-code");
+if(!code){code=Array.from(crypto.getRandomValues(new Uint8Array(12)),b=>b.toString(16).padStart(2,"0")).join("");store("bsm-code",code);}
+let myName=store("bsm-name")||"";
+$("#myname").value=myName;
+$("#myname").addEventListener("input",e=>{myName=e.target.value.trim();store("bsm-name",myName);render();});
+
+["plan","food"].forEach(t=>$("#tab-"+t).addEventListener("click",()=>{["plan","food"].forEach(x=>{$("#tab-"+x).setAttribute("aria-selected",x===t);$("#view-"+x).hidden=x!==t;});}));
+
+let S=null,busy=false;
+function setStatus(msg,err){const s=$("#status");s.textContent=msg||"";s.className="status"+(err?" err":"");}
+
+const API="https://script.google.com/macros/s/AKfycbzHu9OrC208V3B74OLSMjs4xAChZDG37u3_v7FbdHJULaMXV7_i9RhBlG3q_L-_d2weXw/exec";
+function load(){
+  fetch(API+"?api=state&code="+encodeURIComponent(code))
+    .then(r=>r.json()).then(st=>{S=st;if(!busy)setStatus("");render();})
+    .catch(()=>setStatus("Daten gerade nicht erreichbar. Neuer Versuch läuft …",true));
+}
+function call(fn,args){
+  if(busy)return; busy=true; setStatus("Speichere …"); render();
+  fetch(API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({fn:fn,args:args})})
+    .then(r=>r.json())
+    .then(r=>{busy=false;if(r&&r.error)setStatus(r.error,true);else setStatus(r&&r.msg?r.msg:"Gespeichert.",r&&r.ok===false);load();})
+    .catch(()=>{busy=false;setStatus("Das hat nicht geklappt. Bitte nochmal versuchen.",true);load();});
+}
+
+function mineIn(list,key){return list.find(x=>x.key===key&&x.mine);}
+function conflictFor(g){
+  for(const b of S.bookings){
+    if(b.key===g.name)continue;
+    if(!b.mine&&!(myName&&norm(b.name)===norm(myName)))continue;
+    const o=S.games.find(x=>x.name===b.key);
+    if(o&&o.s<g.e&&g.s<o.e)return o.name;
+  }
+  return null;
+}
+
+function render(){
+  if(!S)return;
+  const tl=$("#timeline");
+  if(!S.games.length){tl.innerHTML='<div class="empty">Noch keine Spiele im Plan.</div>';}
+  else{
+    const groups=[];S.games.forEach(g=>{const l=groups[groups.length-1];if(l&&l.s===g.s)l.items.push(g);else groups.push({s:g.s,items:[g]});});
+    tl.innerHTML=groups.map(gr=>`<div class="slot"><div class="t mono">${fmt(gr.s)}</div><div class="games">${gr.items.map(g=>card(g,gr.items.length>1,S.games.indexOf(g))).join("")}</div></div>`).join("");
+  }
+  renderBlocks();
+  document.querySelectorAll("[data-act]").forEach(b=>b.addEventListener("click",()=>{
+    const a=b.dataset.act,k=b.dataset.k;
+    if(a==="book")call("book",[k,myName,code]);
+    if(a==="wait")call("joinWait",[k,myName,code]);
+    if(a==="spec")call("spectate",[k,myName,code]);
+    if(a==="unbook")call("cancel",["Buchungen",k,code]);
+    if(a==="unwait")call("cancel",["Warteliste",k,code]);
+    if(a==="unspec")call("cancel",["Zuschauer",k,code]);
+  }));
+}
+
+function de(n){return n.toFixed(1).replace(".",",");}
+function stats(g){
+  let s="";
+  if(g.rating!=null) s+=`<span class="rate" title="BoardGameGeek-Bewertung">★ ${de(g.rating)}</span>`;
+  if(g.weight!=null){let d="";for(let i=1;i<=5;i++)d+=`<b class="${g.weight>=i-0.25?"on":g.weight>=i-0.75?"half":""}"></b>`;
+    s+=`<span class="cx" title="Komplexität laut BoardGameGeek">Komplexität <i>${d}</i> ${de(g.weight)}</span>`;}
+  return s?`<div class="stats">${s}</div>`:"";
+}
+function card(g,par,idx){
+  const col=`--c:var(--p${idx%6});--cl:var(--p${idx%6}l)`;
+  const st=S.bookings.filter(b=>b.key===g.name), wt=S.waits.filter(w=>w.key===g.name);
+  const free=Math.max(0,g.seats-1-st.length), k=esc(g.name), dis=(busy||!myName)?" disabled":"";
+  let pips='<span class="pip host" title="'+esc(S.host)+'"></span>';
+  for(let i=1;i<g.seats;i++)pips+=`<span class="pip${i<=st.length?" taken":""}"></span>`;
+  const chips=[`<span class="chip host">${esc(S.host)}</span>`].concat(st.map(s=>`<span class="chip${s.mine?" mine":""}">${esc(s.name)}</span>`)).join("");
+  let action;
+  if(mineIn(S.bookings,g.name)) action=`<button class="ghost" data-act="unbook" data-k="${k}"${busy?" disabled":""}>Platz freigeben</button>`;
+  else if(mineIn(S.waits,g.name)) action=`<button class="ghost" data-act="unwait" data-k="${k}"${busy?" disabled":""}>Von Warteliste nehmen</button>`;
+  else { const c=conflictFor(g);
+    if(c) action=`<span class="note">Gleichzeitig gebucht: ${esc(c)}</span>`;
+    else if(free>0) action=`<button data-act="book" data-k="${k}"${dis}>Mitspielen</button>`;
+    else action=`<button class="ghost" data-act="wait" data-k="${k}"${dis}>Auf Warteliste</button>`;
+    if(!myName&&!c) action+=' <span class="meta">Erst Namen eingeben.</span>'; }
+  const cov=g.cover?`<img class="cover" src="${esc(g.cover)}" alt="Cover ${k}" loading="lazy" referrerpolicy="no-referrer">`
+                   :`<div class="cover ph" aria-hidden="true">${esc(g.name.charAt(0))}</div>`;
+  return `<article class="game${par?" parallel":""}" style="${col}">
+    <div class="top">${cov}<div class="tinfo">
+      <div class="ghead"><h3>${esc(g.name)}</h3>${par?'<span class="tag">Parallel</span>':""}</div>
+      <div class="meta mono">${fmt(g.s)}–${fmt(g.e)} · bis ${g.seats} Spieler</div>
+      ${stats(g)}
+    </div></div>
+    ${g.desc?`<p class="desc">${esc(g.desc)}</p>`:""}
+    <div class="seats">${pips}<span class="count ${free?"open":"full"}">${free?free+" frei":"voll"}</span></div>
+    <div class="names">${chips}</div>
+    ${wt.length?`<div class="wait">Warteliste: ${wt.map((w,i)=>`${i+1}. ${esc(w.name)}`).join(", ")}</div>`:""}
+    <div class="links"><a href="${esc(bggLink(g))}" target="_blank" rel="noopener">BoardGameGeek ↗</a><a href="${esc(vidLink(g))}" target="_blank" rel="noopener">Regelvideo ↗</a></div>
+    <div class="actions">${action}</div>
+  </article>`;
+}
+
+function renderBlocks(){
+  const el=$("#blocks");
+  if(!S.blocks.length){el.innerHTML='<div class="empty">Noch keine Zeitblöcke angelegt.</div>';return;}
+  el.innerHTML=S.blocks.map((b,bi)=>{
+    const people=new Set([norm(S.host)]);
+    S.games.filter(g=>g.s>=b.s&&g.s<b.e).forEach(g=>S.bookings.filter(x=>x.key===g.name).forEach(x=>people.add(norm(x.name))));
+    const players=people.size;
+    const sp=S.spectators.filter(s=>s.key===b.name); sp.forEach(s=>people.add(norm(s.name)));
+    const k=esc(b.name), me=sp.find(s=>s.mine);
+    const act=me?`<button class="ghost" data-act="unspec" data-k="${k}"${busy?" disabled":""}>Austragen</button>`
+                :`<button data-act="spec" data-k="${k}"${(busy||!myName)?" disabled":""}>Als Zuschauer kommen</button>`;
+    return `<div class="block" style="--c:var(--p${bi%6});--cl:var(--p${bi%6}l)"><span class="eyebrow">${esc(b.name)}</span><span class="mono meta">${esc(b.from)}–${esc(b.to)}</span>
+      <div><span class="big">${people.size}</span> <span class="meta">vor Ort</span></div>
+      <div class="meta">${players} spielen · ${sp.length} schauen zu</div>
+      <div class="names">${sp.map(s=>`<span class="chip${s.mine?" mine":""}">${esc(s.name)}</span>`).join("")}</div>
+      <div class="actions">${act}</div></div>`;
+  }).join("");
+}
+
+load();
+setInterval(()=>{if(!busy&&!document.hidden)load();},15000);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)load();});
+</script>
+</body>
+</html>
