@@ -62,6 +62,32 @@ h3{font-family:var(--fd);font-weight:400;font-size:1.9rem;letter-spacing:.03em;l
 .welcome{background:#fff;border:5px solid #111;box-shadow:6px 6px 0 #ff3d3d;padding:16px 18px;display:flex;flex-direction:column;gap:8px}
 .welcome h2{font-family:var(--fd);font-weight:400;font-size:1.7rem;letter-spacing:.03em;line-height:1.05;margin:0;color:#ff3d3d;-webkit-text-stroke:1px #111}
 .welcome p{margin:0;max-width:70ch}
+.watch{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:.9rem}
+.watch .wl{font-family:var(--fd);font-size:1.05rem;letter-spacing:.04em}
+.food{border:5px solid #111;background:#fff;padding:12px 14px}
+.food summary{font-family:var(--fd);font-size:1.4rem;letter-spacing:.04em;cursor:pointer}
+.food[open] summary{margin-bottom:10px}
+.food .meta{margin:0 0 12px}
+.pow{position:fixed;left:50%;top:40%;z-index:50;pointer-events:none;opacity:0;transform:translate(-50%,-50%) scale(.2) rotate(-12deg);
+ display:flex;flex-direction:column;align-items:center;background:#ffcc00;border:5px solid #111;padding:34px 40px;
+ clip-path:polygon(50% 0,61% 22%,88% 8%,80% 34%,100% 44%,80% 58%,94% 86%,66% 76%,52% 100%,40% 78%,12% 92%,20% 62%,0 50%,20% 36%,8% 10%,36% 22%)}
+.pow span{font-family:var(--fd);font-size:3.2rem;line-height:1;color:#ff3d3d;-webkit-text-stroke:2px #111;text-shadow:4px 4px 0 #111}
+.pow small{font-weight:700;font-size:.95rem}
+.pow.go{animation:pow 1.1s cubic-bezier(.2,1.6,.4,1) forwards}
+@keyframes pow{0%{opacity:0;transform:translate(-50%,-50%) scale(.2) rotate(-12deg)}25%{opacity:1;transform:translate(-50%,-50%) scale(1.1) rotate(4deg)}70%{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(-2deg)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.3) rotate(0)}}
+h1{animation:boing .8s cubic-bezier(.2,1.8,.4,1) both}
+@keyframes boing{0%{transform:scale(.6)}100%{transform:scale(1)}}
+body.intro .game{animation:pop .5s cubic-bezier(.2,1.6,.4,1) both;animation-delay:calc(var(--i,0) * 70ms)}
+@keyframes pop{0%{transform:translateY(14px) scale(.96)}100%{transform:none}}
+button{transition:transform .12s}
+button:not(:disabled):hover{transform:skew(-6deg) translateY(-2px) rotate(-1.5deg)}
+button:not(:disabled):active{transform:skew(-6deg) translateY(1px) scale(.97)}
+.cover{transition:transform .2s}
+.game:hover .cover{transform:rotate(3deg) scale(1.05)}
+.pip.taken{animation:drop .4s cubic-bezier(.2,1.8,.4,1) both}
+@keyframes drop{0%{transform:translateY(-6px)}100%{transform:none}}
+.rate{transition:transform .2s}.game:hover .rate{transform:rotate(3deg) scale(1.08)}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.pow.go{opacity:1;transform:translate(-50%,-50%)}}
 [hidden]{display:none!important}
 
 .stats{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
@@ -84,7 +110,7 @@ h3{font-family:var(--fd);font-weight:400;font-size:1.9rem;letter-spacing:.03em;l
 
   <section class="welcome">
     <h2>Willkommen zu meinem Brettspielmarathon!</h2>
-    <p>Hier findest du alle Infos zu meiner etwas anderen Geburtstagsfeier am 27.12. Wenn du mitspielen willst, trag unten deinen Namen ein und buch dir dann die Spiele deiner Wahl. Wenn du lieber nur vorbeischauen willst, trag dich unter „Zuschauer &amp; Essen“ ein, damit wir die Verpflegung planen können.</p>
+    <p>Hier findest du alle Infos zu meiner etwas anderen Geburtstagsfeier am 27.12. Wenn du mitspielen willst, trag unten deinen Namen ein und buch dir dann die Spiele deiner Wahl. Wenn du lieber nur vorbeischauen willst, klick beim Spiel auf „Zuschauen“, damit wir die Verpflegung planen können.</p>
     <p>Ihr könnt nur für eine einzige Runde dazustoßen oder den ganzen Tag dabei sein. Ganz wie ihr wollt. Ich freue mich riesig, mit euch zu spielen!</p>
   </section>
 
@@ -94,17 +120,15 @@ h3{font-family:var(--fd);font-weight:400;font-size:1.9rem;letter-spacing:.03em;l
     <span class="meta">Mit diesem Namen buchst du. Austragen geht nur auf diesem Gerät.</span>
   </div>
 
-  <nav class="tabs" role="tablist">
-    <button role="tab" id="tab-plan" aria-selected="true">Spielplan</button>
-    <button role="tab" id="tab-food" aria-selected="false">Zuschauer &amp; Essen</button>
-  </nav>
   <div class="status" id="status">Lade Spielplan …</div>
 
   <section id="view-plan"><div class="timeline" id="timeline"></div></section>
-  <section id="view-food" hidden>
-    <p class="meta" style="margin:0 0 12px">Zuschauer tragen sich pro Zeitblock ein. „Vor Ort“ zählt Tim, alle Mitspieler mit Spielstart im Block und die Zuschauer, jede Person einmal.</p>
+  <details class="food">
+    <summary>Verpflegung: Wer ist wann da?</summary>
+    <p class="meta">Gezählt werden Tim, alle Mitspieler und Zuschauer der Spiele, die im Zeitblock starten. Jede Person einmal.</p>
     <div class="blocks" id="blocks"></div>
-  </section>
+  </details>
+  <div class="pow" id="pow" aria-hidden="true"></div>
 </div>
 
 <script>
@@ -122,7 +146,13 @@ let myName=store("bsm-name")||"";
 $("#myname").value=myName;
 $("#myname").addEventListener("input",e=>{myName=e.target.value.trim();store("bsm-name",myName);render();});
 
-["plan","food"].forEach(t=>$("#tab-"+t).addEventListener("click",()=>{["plan","food"].forEach(x=>{$("#tab-"+x).setAttribute("aria-selected",x===t);$("#view-"+x).hidden=x!==t;});}));
+const POW={book:["POW!","Platz gesichert"],joinWait:["ZACK!","Auf der Warteliste"],spectate:["WOW!","Du schaust zu"],cancel:["PUFF!","Ausgetragen"]};
+function pow(fn){
+  const el=$("#pow"),t=POW[fn]||["OK!",""];
+  el.innerHTML=`<span>${t[0]}</span><small>${t[1]}</small>`;
+  el.classList.remove("go");void el.offsetWidth;el.classList.add("go");
+  clearTimeout(pow.t);pow.t=setTimeout(()=>el.classList.remove("go"),1200);
+}
 
 let S=null,busy=false;
 function setStatus(msg,err){const s=$("#status");s.textContent=msg||"";s.className="status"+(err?" err":"");}
@@ -137,7 +167,7 @@ function call(fn,args){
   if(busy)return; busy=true; setStatus("Speichere …"); render();
   fetch(API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({fn:fn,args:args})})
     .then(r=>r.json())
-    .then(r=>{busy=false;if(r&&r.error)setStatus(r.error,true);else setStatus(r&&r.msg?r.msg:"Gespeichert.",r&&r.ok===false);load();})
+    .then(r=>{busy=false;if(r&&r.error)setStatus(r.error,true);else{setStatus(r&&r.msg?r.msg:"Gespeichert.",r&&r.ok===false);if(!(r&&r.ok===false))pow(fn);}load();})
     .catch(()=>{busy=false;setStatus("Das hat nicht geklappt. Bitte nochmal versuchen.",true);load();});
 }
 
@@ -152,8 +182,10 @@ function conflictFor(g){
   return null;
 }
 
+let firstRender=true;
 function render(){
   if(!S)return;
+  document.body.classList.toggle("intro",firstRender);firstRender=false;
   const tl=$("#timeline");
   if(!S.games.length){tl.innerHTML='<div class="empty">Noch keine Spiele im Plan.</div>';}
   else{
@@ -187,6 +219,7 @@ function card(g,par,idx){
   let pips='<span class="pip host" title="'+esc(S.host)+'"></span>';
   for(let i=1;i<g.seats;i++)pips+=`<span class="pip${i<=st.length?" taken":""}"></span>`;
   const chips=[`<span class="chip host">${esc(S.host)}</span>`].concat(st.map(s=>`<span class="chip${s.mine?" mine":""}">${esc(s.name)}</span>`)).join("");
+  const spx=S.spectators.filter(s=>s.key===g.name), meSpec=spx.find(s=>s.mine);
   let action;
   if(mineIn(S.bookings,g.name)) action=`<button class="ghost" data-act="unbook" data-k="${k}"${busy?" disabled":""}>Platz freigeben</button>`;
   else if(mineIn(S.waits,g.name)) action=`<button class="ghost" data-act="unwait" data-k="${k}"${busy?" disabled":""}>Von Warteliste nehmen</button>`;
@@ -194,10 +227,12 @@ function card(g,par,idx){
     if(c) action=`<span class="note">Gleichzeitig gebucht: ${esc(c)}</span>`;
     else if(free>0) action=`<button data-act="book" data-k="${k}"${dis}>Mitspielen</button>`;
     else action=`<button class="ghost" data-act="wait" data-k="${k}"${dis}>Auf Warteliste</button>`;
-    if(!myName&&!c) action+=' <span class="meta">Erst Namen eingeben.</span>'; }
+    action+=meSpec?` <button class="ghost watchbtn" data-act="unspec" data-k="${k}"${busy?" disabled":""}>Nicht mehr zuschauen</button>`
+                  :` <button class="ghost watchbtn" data-act="spec" data-k="${k}"${dis}>Zuschauen</button>`;
+    if(!myName) action+=' <span class="meta">Erst Namen eingeben.</span>'; }
   const cov=g.cover?`<img class="cover" src="${esc(g.cover)}" alt="Cover ${k}" loading="lazy" referrerpolicy="no-referrer">`
                    :`<div class="cover ph" aria-hidden="true">${esc(g.name.charAt(0))}</div>`;
-  return `<article class="game${par?" parallel":""}" style="${col}">
+  return `<article class="game${par?" parallel":""}" style="${col};--i:${idx}">
     <div class="top">${cov}<div class="tinfo">
       <div class="ghead"><h3>${esc(g.name)}</h3>${par?'<span class="tag">Parallel</span>':""}</div>
       <div class="meta mono">${fmt(g.s)}–${fmt(g.e)} · bis ${g.seats} Spieler</div>
@@ -206,6 +241,7 @@ function card(g,par,idx){
     ${g.desc?`<p class="desc">${esc(g.desc)}</p>`:""}
     <div class="seats">${pips}<span class="count ${free?"open":"full"}">${free?free+" frei":"voll"}</span></div>
     <div class="names">${chips}</div>
+    ${spx.length?`<div class="watch"><span class="wl">Schauen zu:</span> ${spx.map(s=>`<span class="chip${s.mine?" mine":""}">${esc(s.name)}</span>`).join("")}</div>`:""}
     ${wt.length?`<div class="wait">Warteliste: ${wt.map((w,i)=>`${i+1}. ${esc(w.name)}`).join(", ")}</div>`:""}
     <div class="links"><a href="${esc(bggLink(g))}" target="_blank" rel="noopener">BoardGameGeek ↗</a><a href="${esc(vidLink(g))}" target="_blank" rel="noopener">Regelvideo ↗</a></div>
     <div class="actions">${action}</div>
@@ -219,15 +255,15 @@ function renderBlocks(){
     const people=new Set([norm(S.host)]);
     S.games.filter(g=>g.s>=b.s&&g.s<b.e).forEach(g=>S.bookings.filter(x=>x.key===g.name).forEach(x=>people.add(norm(x.name))));
     const players=people.size;
-    const sp=S.spectators.filter(s=>s.key===b.name); sp.forEach(s=>people.add(norm(s.name)));
-    const k=esc(b.name), me=sp.find(s=>s.mine);
-    const act=me?`<button class="ghost" data-act="unspec" data-k="${k}"${busy?" disabled":""}>Austragen</button>`
-                :`<button data-act="spec" data-k="${k}"${(busy||!myName)?" disabled":""}>Als Zuschauer kommen</button>`;
+    const inBlock=new Set(S.games.filter(g=>g.s>=b.s&&g.s<b.e).map(g=>g.name));
+    const seen=new Set(),sp=[];
+    S.spectators.filter(s=>inBlock.has(s.key)||s.key===b.name).forEach(s=>{const n=norm(s.name);if(!seen.has(n)){seen.add(n);sp.push(s);}});
+    sp.forEach(s=>people.add(norm(s.name)));
     return `<div class="block" style="--c:var(--p${bi%6});--cl:var(--p${bi%6}l)"><span class="eyebrow">${esc(b.name)}</span><span class="mono meta">${esc(b.from)}–${esc(b.to)}</span>
       <div><span class="big">${people.size}</span> <span class="meta">vor Ort</span></div>
       <div class="meta">${players} spielen · ${sp.length} schauen zu</div>
       <div class="names">${sp.map(s=>`<span class="chip${s.mine?" mine":""}">${esc(s.name)}</span>`).join("")}</div>
-      <div class="actions">${act}</div></div>`;
+</div>`;
   }).join("");
 }
 
