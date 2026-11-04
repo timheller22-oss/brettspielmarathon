@@ -224,10 +224,10 @@ function stats(g){
 function card(g,par,idx){
   const col=`--c:var(--p${idx%6});--cl:var(--p${idx%6}l)`;
   const st=S.bookings.filter(b=>b.key===g.name), wt=S.waits.filter(w=>w.key===g.name);
-  const free=Math.max(0,g.seats-1-st.length), k=esc(g.name), dis=(busy||!myName)?" disabled":"";
-  let pips='<span class="pip host" title="'+esc(S.host)+'"></span>';
-  for(let i=1;i<g.seats;i++)pips+=`<span class="pip${i<=st.length?" taken":""}"></span>`;
-  const chips=[`<span class="chip host">${esc(S.host)}</span>`].concat(st.map(s=>`<span class="chip${s.mine?" mine":""}">${esc(s.name)}</span>`)).join("");
+  const hostIn=g.host!==false, free=Math.max(0,g.seats-(hostIn?1:0)-st.length), k=esc(g.name), dis=(busy||!myName)?" disabled":"";
+  let pips=hostIn?'<span class="pip host" title="'+esc(S.host)+'"></span>':'';
+  for(let i=hostIn?1:0;i<g.seats;i++)pips+=`<span class="pip${i-(hostIn?1:0)<st.length?" taken":""}"></span>`;
+  const chips=(hostIn?[`<span class="chip host">${esc(S.host)}</span>`]:[]).concat(st.map(s=>`<span class="chip${s.mine?" mine":""}">${esc(s.name)}</span>`)).join("");
   const spx=S.spectators.filter(s=>s.key===g.name), meSpec=spx.find(s=>s.mine);
   let action;
   if(mineIn(S.bookings,g.name)) action=`<button class="ghost" data-act="unbook" data-k="${k}"${busy?" disabled":""}>Platz freigeben</button>`;
@@ -243,7 +243,7 @@ function card(g,par,idx){
                    :`<div class="cover ph" aria-hidden="true">${esc(g.name.charAt(0))}</div>`;
   return `<article class="game${par?" parallel":""}" style="${col};--i:${idx}">
     <div class="top">${cov}<div class="tinfo">
-      <div class="ghead"><h3>${esc(g.name)}</h3>${par?'<span class="tag">Parallel</span>':""}</div>
+      <div class="ghead"><h3>${esc(g.name)}</h3>${par?'<span class="tag">Parallel</span>':""}${hostIn?"":'<span class="tag">Ohne Tim</span>'}</div>
       <div class="meta mono">${fmt(g.s)}–${fmt(g.e)} · bis ${g.seats} Spieler</div>
       ${stats(g)}
     </div></div>
