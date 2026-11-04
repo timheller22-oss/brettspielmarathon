@@ -243,7 +243,7 @@ function card(g,par,idx){
                    :`<div class="cover ph" aria-hidden="true">${esc(g.name.charAt(0))}</div>`;
   return `<article class="game${par?" parallel":""}" style="${col};--i:${idx}">
     <div class="top">${cov}<div class="tinfo">
-      <div class="ghead"><h3>${esc(g.name)}</h3>${par?'<span class="tag">Parallel</span>':""}${hostIn?"":'<span class="tag">Ohne Tim</span>'}</div>
+      <div class="ghead"><h3>${esc(g.name)}</h3>${par?'<span class="tag">Parallel</span>':""}</div>
       <div class="meta mono">${fmt(g.s)}–${fmt(g.e)} · bis ${g.seats} Spieler</div>
       ${stats(g)}
     </div></div>
