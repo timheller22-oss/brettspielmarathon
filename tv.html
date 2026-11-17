@@ -24,6 +24,7 @@ body{background-image:radial-gradient(rgba(255,255,255,.3) .35vw,transparent .4v
 .panel{position:absolute;inset:0;background:#fff;border:.45vw solid #111;box-shadow:.7vw .7vw 0 #111;padding:2vw 2.4vw;display:flex;flex-direction:column;gap:1.4vw;
  opacity:0;transform:translateX(4vw) rotate(1deg);transition:opacity .5s,transform .6s cubic-bezier(.2,1.4,.4,1);pointer-events:none}
 .panel.on{opacity:1;transform:none}
+.panel.gone{opacity:0!important;visibility:hidden;transition:opacity .4s,visibility 0s .4s}
 .panel h2{margin:0;font:400 4vw/1 var(--fd);letter-spacing:.03em;color:var(--red);-webkit-text-stroke:.12vw #111;display:flex;align-items:center;gap:1vw}
 .panel h2 small{font:700 1.4vw var(--fb);color:#555;-webkit-text-stroke:0}
 .ticker{display:flex;align-items:stretch;border:.4vw solid #111;background:#ffcc00;height:3.6vw;overflow:hidden;transition:height .6s ease,border-width .6s ease,margin .6s ease}
@@ -189,7 +190,7 @@ tr.first td{background:#fff3bf}
 <script>
 const {esc,fmtClock,fmtDur,fmtDurShort,norm}=BSM;
 const COLS=["#ffd9d9","#fff3bf","#cdeeff","#e5f6c8","#ffe2c7","#f6d8ff"];
-let S=null,C=null,idx=0,panels=[];
+let S=null,C=null,idx=0,panels=[],started=false;
 
 function coverOf(name){return BSM.coverOf(S,name);}
 function cv(name,cls){const u=coverOf(name);return u?`<img class="cv ${cls||""}" src="${esc(u)}" alt="" referrerpolicy="no-referrer">`:"";}
@@ -284,10 +285,10 @@ function show(){
   if(!C)return;
   panels=build(); if(idx>=panels.length)idx=0;
   const stage=document.getElementById("stage");
-  const old=stage.querySelector(".panel.on");
+  const olds=[...stage.querySelectorAll(".panel")];
   const el=document.createElement("div");el.className="panel";el.innerHTML=panels[idx]();
   stage.appendChild(el);requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add("on")));
-  if(old){old.classList.remove("on");setTimeout(()=>old.remove(),700);}
+  olds.forEach(o=>{o.classList.remove("on");o.classList.add("gone");setTimeout(()=>o.remove(),700);});
   document.getElementById("dots").innerHTML=panels.map((_,i)=>`<i class="${i===idx?"on":""}"></i>`).join("");
 }
 let lastTicker="";
@@ -303,7 +304,7 @@ function tick(){
   document.querySelectorAll(".panel.on .timer[data-start]").forEach(t=>{t.textContent=fmtDurShort(now-Number(t.dataset.start));});
   if(C){document.getElementById("progbar").style.width=C.tim.progress+"%";document.getElementById("progtxt").textContent="Marathon "+C.tim.progress+" %";}
 }
-function load(){BSM.loadState("").then(st=>{S=st;C=BSM.compute(S);renderTicker();if(!document.querySelector(".panel.on .card,.panel.on table,.panel.on .award,.panel.on .big"))show();tick();}).catch(()=>{});}
+function load(){BSM.loadState("").then(st=>{S=st;C=BSM.compute(S);renderTicker();if(!started){started=true;show();}tick();}).catch(()=>{});}
 load();setInterval(load,15000);setInterval(tick,1000);
 setInterval(()=>{if(!C)return;C=BSM.compute(S);idx=(idx+1)%Math.max(1,build().length);show();},20000);
 document.addEventListener("keydown",e=>{if(!C)return;if(e.key==="ArrowRight"){idx=(idx+1)%panels.length;show();}if(e.key==="ArrowLeft"){idx=(idx-1+panels.length)%panels.length;show();}
