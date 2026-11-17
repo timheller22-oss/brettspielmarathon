@@ -155,7 +155,7 @@ tr.first td{background:#fff3bf}
   <div class="dots" id="dots"></div>
   <div class="ticker"><b>LIVE</b><div class="tview"><div class="ttrack" id="ticker"></div></div></div>
 </div>
-<script src="stats.js"></script>
+<script src="stats.js?v=1794912408"></script>
 <script>
 const {esc,fmtClock,fmtDur,fmtDurShort,norm}=BSM;
 const COLS=["#ffd9d9","#fff3bf","#cdeeff","#e5f6c8","#ffe2c7","#f6d8ff"];
@@ -247,7 +247,7 @@ function show(){
   document.getElementById("dots").innerHTML=panels.map((_,i)=>`<i class="${i===idx?"on":""}"></i>`).join("");
 }
 let lastTicker="";
-function renderTicker(){const t=C.ticker.map(s=>"+++ "+s+" ").join("")+"+++";if(t===lastTicker)return;lastTicker=t;
+function renderTicker(){if(!C.ticker)return;const t=C.ticker.map(s=>"+++ "+s+" ").join("")+"+++";if(t===lastTicker)return;lastTicker=t;
   const el=document.getElementById("ticker");el.textContent=t;el.style.setProperty("--dur",Math.max(20,Math.round(t.length/7))+"s");}
 function tick(){
   const now=BSM.nowMin();
