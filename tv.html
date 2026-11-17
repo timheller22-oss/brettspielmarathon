@@ -26,7 +26,8 @@ body{background-image:radial-gradient(rgba(255,255,255,.3) .35vw,transparent .4v
 .panel.on{opacity:1;transform:none}
 .panel h2{margin:0;font:400 4vw/1 var(--fd);letter-spacing:.03em;color:var(--red);-webkit-text-stroke:.12vw #111;display:flex;align-items:center;gap:1vw}
 .panel h2 small{font:700 1.4vw var(--fb);color:#555;-webkit-text-stroke:0}
-.ticker{display:flex;align-items:stretch;border:.4vw solid #111;background:#ffcc00;height:3.6vw;overflow:hidden}
+.ticker{display:flex;align-items:stretch;border:.4vw solid #111;background:#ffcc00;height:3.6vw;overflow:hidden;transition:height .6s ease,border-width .6s ease,margin .6s ease}
+.ticker.off{height:0;border-width:0;margin-top:-1.2vw}
 .ticker b{background:#ff3d3d;color:#fff;font:400 2vw/3vw var(--fd);letter-spacing:.08em;padding:0 1.2vw;border-right:.4vw solid #111;-webkit-text-stroke:.08vw #111}
 .tview{flex:1;overflow:hidden;position:relative}
 .ttrack{position:absolute;white-space:nowrap;font:400 2vw/2.9vw var(--fd);letter-spacing:.04em;animation:tick var(--dur,40s) linear infinite;padding-left:100%}
@@ -153,7 +154,7 @@ tr.first td{background:#fff3bf}
   </div>
   <div class="stage" id="stage"><div class="panel on"><div class="empty">Lade Leaderboard …</div></div></div>
   <div class="dots" id="dots"></div>
-  <div class="ticker"><b>LIVE</b><div class="tview"><div class="ttrack" id="ticker"></div></div></div>
+  <div class="ticker off" id="tickerBox"><b>LIVE</b><div class="tview"><div class="ttrack" id="ticker"></div></div></div>
 </div>
 <script src="stats.js?v=1794912408"></script>
 <script>
@@ -249,8 +250,12 @@ function show(){
 let lastTicker="";
 function renderTicker(){if(!C.ticker)return;const t=C.ticker.map(s=>"+++ "+s+" ").join("")+"+++";if(t===lastTicker)return;lastTicker=t;
   const el=document.getElementById("ticker");el.textContent=t;el.style.setProperty("--dur",Math.max(20,Math.round(t.length/7))+"s");}
+// Live-Ticker: alle 20 Minuten für 2 Minuten (zur vollen, 20. und 40. Minute)
+const TICKER_EVERY=20,TICKER_FOR=2;
 function tick(){
   const now=BSM.nowMin();
+  const d=new Date(),on=d.getMinutes()%TICKER_EVERY<TICKER_FOR;
+  document.getElementById("tickerBox").classList.toggle("off",!on);
   document.getElementById("clock").textContent=fmtClock(now);
   document.querySelectorAll(".panel.on .timer[data-start]").forEach(t=>{t.textContent=fmtDurShort(now-Number(t.dataset.start));});
   if(C){document.getElementById("progbar").style.width=C.tim.progress+"%";document.getElementById("progtxt").textContent="Marathon "+C.tim.progress+" %";}
