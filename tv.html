@@ -138,6 +138,31 @@ tr.first td{background:#fff3bf}
 .discs .md{width:1.8vw;height:1.8vw;border-width:.15vw;box-shadow:none}
 .plaque{background:#c99a3a;border:.25vw solid #111;padding:.1vw 1vw;font:400 1.6vw var(--fd);letter-spacing:.05em;margin-bottom:.4vw}
 @media (prefers-reduced-motion:reduce){.btrack i,.sbar i{animation:none}}
+/* Tims Marathon: Strecke */
+.track{position:relative;flex:1;min-height:0;margin:0 7vw 1vw;top:-3vw}
+.road{position:absolute;left:0;right:0;top:50%;height:2.6vw;margin-top:-1.3vw;background:#555;border:.35vw solid #111;
+ background-image:linear-gradient(90deg,#fff 50%,transparent 50%);background-size:2.4vw .35vw;background-repeat:repeat-x;background-position:0 50%}
+.road i{position:absolute;inset:0 auto 0 0;background:rgba(124,192,0,.75)}
+.stn{position:absolute;top:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;z-index:2}
+.stn .dot{width:2.6vw;height:2.6vw;margin-top:-1.3vw;border-radius:50%;background:#fff;border:.35vw solid #111;display:grid;place-items:center;font:400 1.5vw var(--fd);color:#fff}
+.stn.done .dot{background:#7cc000}.stn.run .dot{background:#ffcc00;animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{50%{transform:scale(1.25)}}
+.stn .lbl{position:absolute;width:10vw;text-align:center;font-size:1.05vw;line-height:1.15}
+.stn .lbl b{display:block;font:400 1.4vw var(--fd);letter-spacing:.04em}
+.stn.dn .lbl{top:2vw}.stn.dn2 .lbl{top:5.6vw}
+.stn.dn2::after{content:"";position:absolute;top:1.3vw;height:4.3vw;border-left:.2vw dashed #111}
+.stn.done .lbl{color:#4a7a00}
+.runner{position:absolute;top:50%;transform:translate(-50%,-100%);margin-top:-1.8vw;z-index:3;display:flex;flex-direction:column;align-items:center;transition:left 1s}
+.runner span{font-size:3.4vw;line-height:1;transform:scaleX(-1)}
+.runner b{background:#ff3d3d;color:#fff;border:.25vw solid #111;font:400 1.2vw var(--fd);padding:0 .6vw;letter-spacing:.05em}
+.flag{position:absolute;top:50%;transform:translateY(-50%);font:400 1.2vw/1.1 var(--fd);text-align:center;background:#111;color:#ffcc00;padding:.3vw .5vw;letter-spacing:.05em}
+.flag.start{left:-6.6vw}.flag.goal{right:-6.6vw;background-image:conic-gradient(#111 25%,#fff 0 50%,#111 0 75%,#fff 0);background-size:1vw 1vw;color:#111;-webkit-text-stroke:0;text-shadow:0 0 .3vw #fff,0 0 .3vw #fff}
+.tstats{display:grid;grid-template-columns:repeat(4,1fr);gap:1.4vw}
+.tst{background:var(--c);border:.4vw solid #111;box-shadow:.4vw .4vw 0 #111;padding:.8vw 1vw;display:flex;align-items:center;gap:.9vw}
+.tst .ti{font-size:3vw}
+.tst b{display:block;font:400 3vw/1 var(--fd);letter-spacing:.03em}
+.tst small{font-size:1.1vw}
+@media (prefers-reduced-motion:reduce){.stn.run .dot{animation:none}}
 .big{font:400 5vw/1 var(--fd);letter-spacing:.03em;color:var(--red);-webkit-text-stroke:.12vw #111}
 .empty{flex:1;display:grid;place-items:center;text-align:center;font:400 3vw var(--fd);color:#555}
 .bar{height:2vw;border:.3vw solid #111;background:#fff;position:relative}.bar i{position:absolute;inset:0 auto 0 0;background:var(--green)}
@@ -185,12 +210,26 @@ function awardPanel(){
     <div class="awho">${esc(a.who)}</div><div class="aval">${esc(a.val)}</div></div>`).join("")}</div>`;
 }
 function timPanel(){
-  const t=C.tim,q=t.quote==null?0:Math.round(t.quote*100),timeP=Math.min(100,Math.round(t.time/(18*60)*100));
-  const d=t.delay,dTxt=d==null?"–":d>0?"+"+d:d<0?String(d):"±0",dCls=d==null?"":d>5?"late":d<-5?"early":"ok";
-  return `<h2>🎂 Tims Marathon</h2><div class="tims">
-    <div class="tcard"><div class="ring big" style="--q:${timeP};--rc:#ffcc00"><span>${fmtDurShort(t.time)}<small>h</small></span></div><h3>Spielzeit</h3><div>${t.plays} Partien beendet</div></div>
-    <div class="tcard"><div class="ring big" style="--q:${q};--rc:#7cc000"><span>${t.quote==null?"–":q}<small>${t.quote==null?"":"%"}</small></span></div><h3>Siegquote</h3><div>${t.wins} Siege</div></div>
-    <div class="tcard"><div class="delay ${dCls}"><span>${dTxt}</span><small>${d==null?"":"min"}</small></div><h3>Zeitplan</h3><div>${d==null?"Noch nichts gestartet":d>5?"hinter dem Plan":d<-5?"vor dem Plan":"voll im Plan"}</div></div></div>`;
+  const t=C.tim,q=t.quote==null?null:Math.round(t.quote*100);
+  const d=t.delay,dTxt=d==null?"–":d>0?"+"+d+" min":d<0?d+" min":"±0",dCls=d==null?"":d>5?"late":d<-5?"early":"ok";
+  const T0=8*60,games=S.games.filter(g=>g.host!==false),T1=Math.max(T0+60,...games.map(g=>g.e));
+  const pos=v=>Math.max(0,Math.min(100,(v-T0)/(T1-T0)*100));
+  const groups=[];games.forEach(g=>{const l=groups[groups.length-1];if(l&&l.s===g.s)l.items.push(g);else groups.push({s:g.s,items:[g]});});
+  const st=g=>{const p=C.plays.find(x=>x.game===g.name);return !p?"":p.done?"done":"run";};
+  const stations=groups.map((gr,i)=>{const s=gr.items.map(st),cls=s.every(x=>x==="done")?"done":s.some(x=>x)?"run":"";
+    return `<div class="stn ${cls} ${i%2?"dn2":"dn"}" style="left:${pos(gr.s)}%"><span class="dot">${cls==="done"?"✓":""}</span>
+      <span class="lbl"><b>${BSM.fmtClock(gr.s)}</b>${gr.items.map(g=>esc(g.name.replace(/ Legends Volume 2/," Vol. 2"))).join(" ∥ ")}</span></div>`;}).join("");
+  const runner=pos(C.now);
+  return `<h2>🏃 Tims Marathon <small>Station für Station durch den Tag</small></h2>
+  <div class="track"><div class="road"><i style="width:${runner}%"></i></div>${stations}
+    <div class="runner" style="left:${runner}%"><span>🏃</span><b>Tim</b></div>
+    <div class="flag start">START<br>08:00</div><div class="flag goal">ZIEL<br>${BSM.fmtClock(T1)}</div></div>
+  <div class="tstats">
+    <div class="tst" style="--c:#fff3bf"><span class="ti">⏱️</span><div><b>${fmtDurShort(t.time)} h</b><small>gespielt · ${t.plays} Partien</small></div></div>
+    <div class="tst" style="--c:#e5f6c8"><span class="ti">🏆</span><div><b>${q==null?"–":q+" %"}</b><small>Siegquote · ${t.wins} Siege</small></div></div>
+    <div class="tst ${dCls}" style="--c:${dCls==="late"?"#ffd9d9":dCls==="early"?"#cdeeff":"#e5f6c8"}"><span class="ti">${dCls==="late"?"🐢":dCls==="early"?"🚀":"👍"}</span><div><b>${dTxt}</b><small>${d==null?"noch nicht gestartet":d>5?"hinter dem Zeitplan":d<-5?"vor dem Zeitplan":"voll im Zeitplan"}</small></div></div>
+    <div class="tst" style="--c:#f6d8ff"><span class="ti">🏁</span><div><b>${t.progress} %</b><small>des Marathons geschafft</small></div></div>
+  </div>`;
 }
 function statPanel(part,i){
   return `<h2>📊 Statistik</h2><div class="stats">${part.map((s,j)=>`
