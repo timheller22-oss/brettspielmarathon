@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light only">
+<meta name="robots" content="noindex">
+<title>Spielleitung · Tims Brettspielmarathon</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@400;700&display=swap">
+<style>
+:root{color-scheme:light only;--ink:#111;--red:#ff3d3d;--yel:#ffcc00;--blue:#00a6ed;--green:#7cc000;--fd:"Bangers",Impact,sans-serif;--fb:"Comic Neue",system-ui,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:#fff;color:#111;font:700 17px/1.4 var(--fb);padding:16px max(16px,env(safe-area-inset-right)) 80px max(16px,env(safe-area-inset-left))}
+.wrap{max-width:820px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+header{background:var(--blue);border:5px solid #111;padding:14px 16px;background-image:radial-gradient(rgba(255,255,255,.35) 3px,transparent 3.5px);background-size:14px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+h1{margin:0;font:400 2.2rem/1 var(--fd);color:var(--yel);-webkit-text-stroke:1.5px #111;text-shadow:3px 3px 0 #111;letter-spacing:.03em;flex:1}
+header a{color:#111;background:#fff;border:3px solid #111;padding:2px 10px;text-decoration:none}
+h2{margin:0;font:400 1.7rem/1 var(--fd);letter-spacing:.04em}
+.box{border:5px solid #111;padding:14px;display:flex;flex-direction:column;gap:12px;background:#fff}
+.box.run{box-shadow:6px 6px 0 var(--green)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+input,select{font:inherit;border:3px solid #111;padding:6px 10px;background:#fff;min-width:0}
+input[type=time]{width:8.5em}
+button{font:400 1.1rem var(--fd);letter-spacing:.05em;cursor:pointer;border:3px solid #111;background:var(--c,var(--red));color:#fff;padding:6px 14px;-webkit-text-stroke:.5px #111}
+button.ghost{background:#fff;color:#111;-webkit-text-stroke:0}
+button.ok{--c:var(--green)}
+button.warn{--c:#111;color:var(--yel)}
+button:disabled{opacity:.45}
+.pick{display:flex;flex-wrap:wrap;gap:8px}
+.pick button{background:#fff;color:#111;-webkit-text-stroke:0;font:700 1rem var(--fb);border-radius:50%/45%;padding:6px 14px;position:relative}
+.pick button.sel{background:var(--yel)}
+.pick button.win{background:var(--green);color:#fff}
+.pick button .n{position:absolute;top:-10px;right:-8px;background:#111;color:var(--yel);font:400 1rem var(--fd);width:26px;height:26px;border-radius:50%;display:grid;place-items:center}
+.meta{font-weight:400;font-size:.95rem;color:#444}
+.status{min-height:1.4em;font-size:.95rem}
+.status.err{color:#c00}
+.list{display:flex;flex-direction:column;gap:10px}
+.done{border:3px solid #111;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.res{display:flex;flex-wrap:wrap;gap:6px}
+.res span{border:2px solid #111;padding:0 8px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><h1>Spielleitung</h1><a href="./tv.html" target="_blank" rel="noopener">Fernseher-Ansicht ↗</a><a href="./">Zur Seite</a></header>
+
+  <section class="box" id="login">
+    <h2>PIN eingeben</h2>
+    <div class="row"><input id="pin" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN"><button id="pinbtn">Entsperren</button></div>
+    <div class="meta">Die PIN steht im Google Sheet im Tab „Einstellungen“.</div>
+  </section>
+
+  <div id="app" hidden class="wrap" style="padding:0">
+    <div class="status" id="status"></div>
+    <section class="box"><h2>▶ Läuft gerade</h2><div class="list" id="running"></div></section>
+    <section class="box" id="newbox">
+      <h2>＋ Neue Partie starten</h2>
+      <div class="row"><select id="game"></select></div>
+      <div class="row" id="freeRow" hidden><input id="freeName" placeholder="Spielname, z. B. Kniffel"><label><input type="checkbox" id="freeTeam"> Teamspiel</label></div>
+      <div class="meta">Mitspieler antippen (gelb = spielt mit):</div>
+      <div class="pick" id="players"></div>
+      <div class="row"><input id="addName" placeholder="Weiteren Namen hinzufügen"><button class="ghost" id="addBtn">Hinzufügen</button></div>
+      <div class="row">Start <input type="time" id="startT"><button class="ghost" id="startNow">Jetzt</button><button class="ok" id="startBtn">Partie starten</button></div>
+    </section>
+    <section class="box"><h2>✓ Beendete Partien</h2><div class="list" id="finished"></div></section>
+  </div>
+</div>
+<script src="stats.js"></script>
+<script>
+const {esc,norm,api}=BSM;
+const $=s=>document.querySelector(s);
+const nowHHMM=()=>{const d=new Date();return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");};
+let PIN="";try{PIN=localStorage.getItem("bsm-pin")||"";}catch(e){}
+let S=null,C=null,busy=false,sel=new Set(),extra=[],openFinish=null,finishState={},confirmDel=null;
+
+function setStatus(m,err){const s=$("#status");s.textContent=m||"";s.className="status"+(err?" err":"");}
+function run(fn,args,after){if(busy)return;busy=true;setStatus("Speichere …");
+  api(fn,[PIN,...args]).then(r=>{busy=false;setStatus(r.msg||"Gespeichert.");if(after)after();load();})
+  .catch(e=>{busy=false;setStatus(e.message,true);if(/PIN/.test(e.message))logout();});}
+function logout(){try{localStorage.removeItem("bsm-pin");}catch(e){}$("#app").hidden=true;$("#login").hidden=false;}
+
+$("#pinbtn").onclick=()=>{const p=$("#pin").value.trim();api("adminCheck",[p]).then(()=>{PIN=p;try{localStorage.setItem("bsm-pin",p);}catch(e){}enter();}).catch(e=>alertLogin(e.message));};
+function alertLogin(m){$("#login .meta").textContent=m;}
+function enter(){$("#login").hidden=true;$("#app").hidden=false;$("#startT").value=nowHHMM();load();}
+
+function knownNames(){
+  const m=new Map();const add=n=>{n=String(n||"").trim();if(n&&!m.has(norm(n)))m.set(norm(n),n);};
+  add(S.host);S.bookings.forEach(b=>add(b.name));S.spectators.forEach(b=>add(b.name));(S.plays||[]).forEach(p=>p.players.forEach(x=>add(x.name)));extra.forEach(add);
+  return [...m.values()].sort((a,b)=>a.localeCompare(b));
+}
+function selectedGame(){const v=$("#game").value;return v==="__free"?null:S.games.find(g=>g.name===v);}
+function preselect(){
+  sel=new Set();const g=selectedGame();
+  if(g){if(g.host!==false)sel.add(norm(S.host));S.bookings.filter(b=>b.key===g.name).forEach(b=>sel.add(norm(b.name)));}
+  $("#freeRow").hidden=!!g;renderPick();
+}
+function renderPick(){
+  $("#players").innerHTML=knownNames().map(n=>`<button class="${sel.has(norm(n))?"sel":""}" data-n="${esc(n)}">${esc(n)}</button>`).join("");
+  $("#players").querySelectorAll("button").forEach(b=>b.onclick=()=>{const k=norm(b.dataset.n);sel.has(k)?sel.delete(k):sel.add(k);renderPick();});
+}
+$("#game").onchange=preselect;
+$("#addBtn").onclick=()=>{const n=$("#addName").value.trim();if(!n)return;extra.push(n);sel.add(norm(n));$("#addName").value="";renderPick();};
+$("#startNow").onclick=()=>{$("#startT").value=nowHHMM();};
+$("#startBtn").onclick=()=>{
+  const g=selectedGame(),name=g?g.name:$("#freeName").value.trim();
+  if(!name)return setStatus("Bitte einen Spielnamen eingeben.",true);
+  const players=knownNames().filter(n=>sel.has(norm(n)));
+  run("adminStart",[name,players,$("#startT").value,g?!!g.team:$("#freeTeam").checked,!g],()=>{$("#freeName").value="";});
+};
+
+function renderGameSelect(){
+  const started=new Set((S.plays||[]).map(p=>p.game)),cur=$("#game").value;
+  const open=S.games.filter(g=>!started.has(g.name)),rest=S.games.filter(g=>started.has(g.name));
+  $("#game").innerHTML=`<optgroup label="Noch nicht gespielt">${open.map(g=>`<option value="${esc(g.name)}">${esc(g.start)} ${esc(g.name)}</option>`).join("")}</optgroup>`+
+    (rest.length?`<optgroup label="Schon gestartet">${rest.map(g=>`<option value="${esc(g.name)}">${esc(g.start)} ${esc(g.name)}</option>`).join("")}</optgroup>`:"")+
+    `<option value="__free">Spontanes Spiel …</option>`;
+  if(cur&&[...$("#game").options].some(o=>o.value===cur))$("#game").value=cur;else preselect();
+}
+
+function finishUI(p){
+  const st=finishState[p.id]=finishState[p.id]||{order:[],winners:new Set(),end:p.end||nowHHMM()};
+  const names=p.players.map(x=>x.name);
+  const pick=names.map(n=>{const i=st.order.indexOf(n);const w=st.winners.has(n);
+    return p.team?`<button class="${w?"win":""}" data-n="${esc(n)}">${esc(n)}</button>`:`<button class="${i>=0?"sel":""}" data-n="${esc(n)}">${esc(n)}${i>=0?`<span class="n">${i+1}</span>`:""}</button>`;}).join("");
+  return `<div class="meta">${p.team?"Gewinner antippen (grün = Siegerteam):":"Spieler in der Reihenfolge ihrer Platzierung antippen:"}</div>
+    <div class="pick" data-fin="${p.id}">${pick}</div>
+    <div class="row">Ende <input type="time" data-end="${p.id}" value="${esc(st.end)}"><button class="ghost" data-now="${p.id}">Jetzt</button>
+    ${p.team?"":`<button class="ghost" data-reset="${p.id}">Zurücksetzen</button>`}<button class="ok" data-save="${p.id}">Ergebnis speichern</button><button class="ghost" data-cancel="${p.id}">Abbrechen</button></div>`;
+}
+function playBox(p,running){
+  const res=p.done?`<div class="res">${p.players.slice().sort((a,b)=>(a.place||9)-(b.place||9)).map(x=>`<span>${p.team?(x.win?"🏆 ":""):x.place+". "}${esc(x.name)}</span>`).join("")}</div>`:
+    `<div class="res">${p.players.map(x=>`<span>${esc(x.name)}</span>`).join("")}</div>`;
+  const head=`<div class="row" style="justify-content:space-between"><h2 style="font-size:1.4rem">${esc(p.game)}${p.spontan?" (spontan)":""}${p.team?" · Team":""}</h2><span class="meta">${esc(p.start)}${p.done?"–"+esc(p.end)+" · "+BSM.fmtDur(p.dur):" · läuft seit "+BSM.fmtDur(p.dur)}</span></div>`;
+  const edit=`<div class="row">Start <input type="time" data-st="${p.id}" value="${esc(p.start)}">${p.done?` Ende <input type="time" data-en="${p.id}" value="${esc(p.end)}">`:""}<button class="ghost" data-times="${p.id}">Zeiten speichern</button></div>`;
+  const del=confirmDel===p.id?`<button class="warn" data-delyes="${p.id}">Wirklich löschen</button><button class="ghost" data-delno="${p.id}">Nein</button>`:`<button class="ghost" data-del="${p.id}">Löschen</button>`;
+  if(openFinish===p.id)return `<div class="${running?"box run":"done"}">${head}${finishUI(p)}</div>`;
+  return `<div class="${running?"box run":"done"}">${head}${res}${edit}<div class="row">${running?`<button class="ok" data-fin-open="${p.id}">Beenden</button>`:`<button class="ghost" data-fin-open="${p.id}">Ergebnis ändern</button>`}${del}</div></div>`;
+}
+function render(){
+  C=BSM.compute(S);
+  $("#running").innerHTML=C.running.length?C.running.map(p=>playBox(p,true)).join(""):`<div class="meta">Gerade läuft nichts.</div>`;
+  $("#finished").innerHTML=C.done.length?C.done.slice().reverse().map(p=>playBox(p,false)).join(""):`<div class="meta">Noch keine Partie beendet.</div>`;
+  bind();
+}
+function bind(){
+  const q=(a,f)=>document.querySelectorAll(`[${a}]`).forEach(b=>b.onclick=()=>f(b.getAttribute(a),b));
+  q("data-fin-open",id=>{const p=C.plays.find(x=>x.id===id);finishState[id]={order:p.done&&!p.team?p.players.slice().sort((a,b)=>a.place-b.place).map(x=>x.name):[],winners:new Set(p.team?p.players.filter(x=>x.win).map(x=>x.name):[]),end:p.end||nowHHMM()};openFinish=id;render();});
+  q("data-cancel",()=>{openFinish=null;render();});
+  document.querySelectorAll("[data-fin] button").forEach(b=>b.onclick=()=>{const id=b.parentNode.dataset.fin,p=C.plays.find(x=>x.id===id),st=finishState[id],n=b.dataset.n;
+    if(p.team){st.winners.has(n)?st.winners.delete(n):st.winners.add(n);}else{const i=st.order.indexOf(n);i>=0?st.order.splice(i,1):st.order.push(n);}render();});
+  document.querySelectorAll("[data-end]").forEach(i=>i.onchange=()=>{finishState[i.dataset.end].end=i.value;});
+  q("data-now",id=>{finishState[id].end=nowHHMM();render();});
+  q("data-reset",id=>{finishState[id].order=[];render();});
+  q("data-save",id=>{const p=C.plays.find(x=>x.id===id),st=finishState[id];
+    let result;if(p.team)result={players:p.players.map(x=>x.name),winners:[...st.winners]};
+    else{if(st.order.length<p.players.length)return setStatus("Bitte alle Spieler in Reihenfolge antippen.",true);result={order:st.order};}
+    run("adminFinish",[id,st.end,result],()=>{openFinish=null;});});
+  q("data-times",id=>{const st=document.querySelector(`[data-st="${id}"]`).value,en=document.querySelector(`[data-en="${id}"]`);run("adminEdit",[id,{start:st,end:en?en.value:undefined}]);});
+  q("data-del",id=>{confirmDel=id;render();});
+  q("data-delno",()=>{confirmDel=null;render();});
+  q("data-delyes",id=>{confirmDel=null;run("adminDelete",[id]);});
+}
+function load(){BSM.loadState("").then(st=>{S=st;renderGameSelect();if(!$("#players").children.length)preselect();else renderPick();if(!busy)render();}).catch(()=>setStatus("Daten gerade nicht erreichbar.",true));}
+setInterval(()=>{if(!busy&&!openFinish&&!$("#app").hidden&&document.activeElement.tagName!=="INPUT")load();},20000);
+if(PIN)api("adminCheck",[PIN]).then(enter).catch(logout);
+</script>
+</body>
+</html>
