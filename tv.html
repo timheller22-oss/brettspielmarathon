@@ -139,7 +139,7 @@ tr.first td{background:#fff3bf}
 .plaque{background:#c99a3a;border:.25vw solid #111;padding:.1vw 1vw;font:400 1.6vw var(--fd);letter-spacing:.05em;margin-bottom:.4vw}
 @media (prefers-reduced-motion:reduce){.btrack i,.sbar i{animation:none}}
 /* Tims Marathon: Strecke */
-.track{position:relative;flex:1;min-height:0;margin:0 7vw 1vw;top:-3vw}
+.track{position:relative;flex:1;min-height:0;margin:0 7vw 1vw;top:-6vw}
 .road{position:absolute;left:0;right:0;top:50%;height:2.6vw;margin-top:-1.3vw;background:#555;border:.35vw solid #111;
  background-image:linear-gradient(90deg,#fff 50%,transparent 50%);background-size:2.4vw .35vw;background-repeat:repeat-x;background-position:0 50%}
 .road i{position:absolute;inset:0 auto 0 0;background:rgba(124,192,0,.75)}
@@ -149,8 +149,11 @@ tr.first td{background:#fff3bf}
 @keyframes pulse{50%{transform:scale(1.25)}}
 .stn .lbl{position:absolute;width:10vw;text-align:center;font-size:1.05vw;line-height:1.15}
 .stn .lbl b{display:block;font:400 1.4vw var(--fd);letter-spacing:.04em}
-.stn.dn .lbl{top:2vw}.stn.dn2 .lbl{top:5.6vw}
-.stn.dn2::after{content:"";position:absolute;top:1.3vw;height:4.3vw;border-left:.2vw dashed #111}
+.stn.dn .lbl{top:1.8vw}.stn.dn2 .lbl{top:10vw}
+.stn.dn2::after{content:"";position:absolute;top:1.3vw;height:8.7vw;border-left:.2vw dashed #111}
+.scv{display:flex;justify-content:center;gap:.3vw;margin-bottom:.3vw}
+.scv img{width:3.4vw;height:3.4vw;object-fit:contain;background:#fff;border:.2vw solid #111}
+.stn:not(.done):not(.run) .scv img{filter:grayscale(.6) opacity(.75)}
 .stn.done .lbl{color:#4a7a00}
 .runner{position:absolute;top:50%;transform:translate(-50%,-100%);margin-top:-1.8vw;z-index:3;display:flex;flex-direction:column;align-items:center;transition:left 1s}
 .meeple{width:4.2vw;height:4.2vw;fill:#ff3d3d;stroke:#111;stroke-width:6;stroke-linejoin:round;filter:drop-shadow(.25vw .25vw 0 #111);animation:hop 1.6s ease-in-out infinite}
@@ -219,7 +222,7 @@ function timPanel(){
   const st=g=>{const p=C.plays.find(x=>x.game===g.name);return !p?"":p.done?"done":"run";};
   const stations=groups.map((gr,i)=>{const s=gr.items.map(st),cls=s.every(x=>x==="done")?"done":s.some(x=>x)?"run":"";
     return `<div class="stn ${cls} ${i%2?"dn2":"dn"}" style="left:${pos(gr.s)}%"><span class="dot">${cls==="done"?"✓":""}</span>
-      <span class="lbl"><b>${BSM.fmtClock(gr.s)}</b>${gr.items.map(g=>esc(g.name.replace(/ Legends Volume 2/," Vol. 2"))).join(" ∥ ")}</span></div>`;}).join("");
+      <span class="lbl"><span class="scv">${gr.items.map(g=>g.cover?`<img src="${esc(g.cover)}" alt="" referrerpolicy="no-referrer">`:"").join("")}</span><b>${BSM.fmtClock(gr.s)}</b>${gr.items.map(g=>esc(g.name.replace(/ Legends Volume 2/," Vol. 2"))).join(" ∥ ")}</span></div>`;}).join("");
   const runner=pos(C.now);
   return `<h2>🎂 Tims Marathon <small>Station für Station durch den Tag</small></h2>
   <div class="track"><div class="road"><i style="width:${runner}%"></i></div>${stations}
