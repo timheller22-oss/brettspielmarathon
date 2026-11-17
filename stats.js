@@ -64,7 +64,7 @@ function compute(S){
   const top=(arr,f,min)=>{const s=arr.filter(x=>f(x)>=(min||1)).sort((a,b)=>f(b)-f(a));return s.length?s[0]:null;};
   const guests=people.filter(x=>norm(x.name)!==norm(host));
 
-  const awards=[];
+  const awards=[{icon:"🍲",title:"Catering-Award",who:"Marlene",val:"für die beste Verpflegung des Tages"}];
   if(byPoints[0])awards.push({icon:"🏆",title:"Marathon-Champion",who:byPoints[0].name,val:byPoints[0].points+" Punkte"});
   if(byQuote[0])awards.push({icon:"🎯",title:"Spielkönig",who:byQuote[0].name,val:Math.round(byQuote[0].quote*100)+" % Leistungsquote"});
   const sitz=top(guests,x=>x.time,1);if(sitz)awards.push({icon:"🪑",title:"Sitzfleisch",who:sitz.name,val:fmtDur(sitz.time)+" gespielt"});
@@ -100,6 +100,27 @@ function compute(S){
   const duo=Object.entries(pairs).sort((a,b)=>b[1]-a[1])[0];
   if(duo)stats.push({icon:"👯",title:"Unzertrennlich",big:duo[0],text:duo[1]+"× zusammen am Tisch"});
   else stats.push({icon:"👯",title:"Unzertrennlich",big:"–",text:"Wer sitzt am häufigsten zusammen am Tisch?"});
+  // Rivalen-Duell: direkte Bilanz zweier Personen
+  const h2h={};
+  done.forEach(p=>{const ps=p.players;for(let i=0;i<ps.length;i++)for(let j=i+1;j<ps.length;j++){
+    const a=ps[i],b=ps[j];let wa=0,wb=0;
+    if(p.team){if(a.win===b.win)continue;a.win?wa=1:wb=1;}else{const pa=a.place||99,pb=b.place||99;if(pa===pb)continue;pa<pb?wa=1:wb=1;}
+    const [x,y,sx,sy]=a.name.localeCompare(b.name)<0?[a.name,b.name,wa,wb]:[b.name,a.name,wb,wa];
+    const k=x+"|"+y;h2h[k]=h2h[k]||{x,y,a:0,b:0};h2h[k].a+=sx;h2h[k].b+=sy;}});
+  const riv=Object.values(h2h).filter(r=>r.a+r.b>=2).sort((r,s)=>(s.a+s.b)-(r.a+r.b)||Math.abs(r.a-r.b)-Math.abs(s.a-s.b))[0];
+  if(riv){const [l,r]=riv.a>=riv.b?[riv.x,riv.y]:[riv.y,riv.x];stats.push({icon:"⚔️",title:"Rivalen-Duell",big:Math.max(riv.a,riv.b)+" : "+Math.min(riv.a,riv.b),text:l+" gegen "+r});}
+  else stats.push({icon:"⚔️",title:"Rivalen-Duell",big:"–",text:"Wer hat die beste direkte Bilanz?"});
+  // Comeback-Kid: letzter Platz, danach direkt gewonnen
+  const cb={};
+  people.forEach(x=>{const hist=done.filter(p=>p.players.some(q=>norm(q.name)===x.key)).sort((a,b)=>a.e-b.e)
+    .map(p=>{const q=p.players.find(q=>norm(q.name)===x.key),n=p.players.length;return {last:p.team?!q.win:(q.place||n)===n&&n>1,win:p.team?q.win:q.place===1};});
+    for(let i=1;i<hist.length;i++)if(hist[i-1].last&&hist[i].win)cb[x.name]=(cb[x.name]||0)+1;});
+  const kid=Object.entries(cb).sort((a,b)=>b[1]-a[1])[0];
+  stats.push(kid?{icon:"🦸",title:"Comeback-Kid",big:kid[0],text:"vom letzten Platz direkt zum Sieg"+(kid[1]>1?` (${kid[1]}×)`:"")}:{icon:"🦸",title:"Comeback-Kid",big:"–",text:"Wer gewinnt direkt nach einem letzten Platz?"});
+  // Allrounder: meiste verschiedene Spiele
+  const variety=people.map(x=>({name:x.name,n:new Set(plays.filter(p=>p.players.some(q=>norm(q.name)===x.key)).map(p=>p.game.replace(/\s*\(Tisch \d+\)$/,""))).size}))
+    .filter(x=>norm(x.name)!==norm(host)).sort((a,b)=>b.n-a.n)[0];
+  stats.push(variety&&variety.n>1?{icon:"🎲",title:"Allrounder",big:variety.name,text:variety.n+" verschiedene Spiele gespielt"}:{icon:"🎲",title:"Allrounder",big:"–",text:"Wer spielt die meisten verschiedenen Spiele?"});
   stats.push({icon:"🏁",title:"Marathon-Fortschritt",big:progress+" %",text:"des Tages sind geschafft",bar:progress});
 
   // Als Nächstes
@@ -107,7 +128,15 @@ function compute(S){
   const upcoming=games.filter(g=>!startedNames.has(g.name)&&g.e>now).sort((a,b)=>a.s-b.s);
   const next=upcoming.length?upcoming.filter(g=>g.s===upcoming[0].s):[];
 
-  return {now,plays,running:plays.filter(p=>!p.done),done,people,byPoints,byQuote,medals,awards,tim,stats,next,host};
+  const ticker=[];
+  done.slice().sort((a,b)=>b.e-a.e).slice(0,8).forEach(p=>{
+    if(p.team){const w=p.players.filter(x=>x.win).map(x=>x.name);if(w.length)ticker.push(`${w.join(" & ")} ${w.length>1?"gewinnen":"gewinnt"} ${p.game}`);}
+    else{const r=p.players.slice().sort((a,b)=>(a.place||99)-(b.place||99));if(r[0])ticker.push(`${r[0].name} gewinnt ${p.game}`+(r[1]?` vor ${r[1].name}`:""));}});
+  plays.filter(p=>!p.done).forEach(p=>ticker.unshift(`${p.game} läuft seit ${p.start} Uhr`));
+  if(next.length)ticker.push(`Gleich geht's los: ${next.map(g=>g.name).join(" und ")} um ${next[0].start} Uhr`);
+  if(!done.length&&!plays.length)ticker.push("Willkommen zum Brettspielmarathon","Heute wird 18 Stunden gespielt");
+
+  return {ticker,now,plays,running:plays.filter(p=>!p.done),done,people,byPoints,byQuote,medals,awards,tim,stats,next,host};
 }
 
 function coverOf(S,name){if(!S||!name)return "";const base=String(name).replace(/\s*\(Tisch \d+\)$/,"");const g=(S.games||[]).find(x=>x.name===name)||(S.games||[]).find(x=>x.name===base);if(g&&g.cover)return g.cover;const p=(S.plays||[]).slice().reverse().find(x=>(x.game===name||x.game===base)&&x.cover);return p?p.cover:"";}

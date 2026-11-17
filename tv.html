@@ -26,6 +26,12 @@ body{background-image:radial-gradient(rgba(255,255,255,.3) .35vw,transparent .4v
 .panel.on{opacity:1;transform:none}
 .panel h2{margin:0;font:400 4vw/1 var(--fd);letter-spacing:.03em;color:var(--red);-webkit-text-stroke:.12vw #111;display:flex;align-items:center;gap:1vw}
 .panel h2 small{font:700 1.4vw var(--fb);color:#555;-webkit-text-stroke:0}
+.ticker{display:flex;align-items:stretch;border:.4vw solid #111;background:#ffcc00;height:3.6vw;overflow:hidden}
+.ticker b{background:#ff3d3d;color:#fff;font:400 2vw/3vw var(--fd);letter-spacing:.08em;padding:0 1.2vw;border-right:.4vw solid #111;-webkit-text-stroke:.08vw #111}
+.tview{flex:1;overflow:hidden;position:relative}
+.ttrack{position:absolute;white-space:nowrap;font:400 2vw/2.9vw var(--fd);letter-spacing:.04em;animation:tick var(--dur,40s) linear infinite;padding-left:100%}
+@keyframes tick{from{transform:translateX(0)}to{transform:translateX(-100%)}}
+@media (prefers-reduced-motion:reduce){.ttrack{animation:none;padding-left:1vw}}
 .dots{display:flex;gap:.6vw;justify-content:center}
 .dots i{width:1vw;height:1vw;border:.25vw solid #111;background:#fff;border-radius:50%}
 .dots i.on{background:var(--yel)}
@@ -98,9 +104,9 @@ tr.first td{background:#fff3bf}
 .kn{font:400 1.9vw var(--fd);letter-spacing:.03em}.km{font-size:1.1vw;color:#555}
 .ring.big{width:15vw;height:15vw}.ring.big span{font-size:4vw}
 /* Awards als Sammelkarten */
-.awards{display:grid;grid-template-columns:repeat(3,1fr);gap:1.6vw;flex:1;align-content:center}
-.acard{background:var(--ac);border:.4vw solid #111;box-shadow:.5vw .5vw 0 #111;padding:1vw;display:flex;flex-direction:column;align-items:center;gap:.4vw;text-align:center;transform:rotate(var(--rot))}
-.aburst{width:7vw;height:7vw;display:grid;place-items:center;font-size:3.6vw;background:#fff;
+.awards{display:grid;grid-template-columns:repeat(3,1fr);gap:1.3vw 1.6vw;flex:1;align-content:center}
+.acard{background:var(--ac);border:.4vw solid #111;box-shadow:.5vw .5vw 0 #111;padding:.7vw 1vw;display:flex;flex-direction:column;align-items:center;gap:.4vw;text-align:center;transform:rotate(var(--rot))}
+.aburst{width:5.6vw;height:5.6vw;display:grid;place-items:center;font-size:2.9vw;background:#fff;
  clip-path:polygon(50% 0,61% 22%,88% 8%,80% 34%,100% 44%,80% 58%,94% 86%,66% 76%,52% 100%,40% 78%,12% 92%,20% 62%,0 50%,20% 36%,8% 10%,36% 22%)}
 .aband{background:#111;color:#ffcc00;font:400 1.4vw var(--fd);letter-spacing:.08em;padding:.2vw 1vw;margin:0 -1.4vw}
 .awho{font:400 2.8vw/1 var(--fd);letter-spacing:.03em}
@@ -147,6 +153,7 @@ tr.first td{background:#fff3bf}
   </div>
   <div class="stage" id="stage"><div class="panel on"><div class="empty">Lade Leaderboard …</div></div></div>
   <div class="dots" id="dots"></div>
+  <div class="ticker"><b>LIVE</b><div class="tview"><div class="ttrack" id="ticker"></div></div></div>
 </div>
 <script src="stats.js"></script>
 <script>
@@ -220,10 +227,11 @@ function build(){
   out.push(()=>!C.medals.length?`<h2>🥇 Medaillenspiegel</h2>${emptyP("Noch keine Medaillen vergeben")}`:medalPanel());
   out.push(()=>!C.byPoints.length?`<h2>🏆 Marathon-Champion</h2>${emptyP("Noch keine Partie beendet")}`:champPanel());
   out.push(()=>!C.byQuote.length?`<h2>🎯 Spielkönig</h2>${emptyP("Wertung ab 2 beendeten Partien")}`:kingPanel());
-  out.push(()=>!C.awards.length?`<h2>⭐ Awards</h2>${emptyP("Die Awards werden im Laufe des Tages vergeben")}`:awardPanel());
+  out.push(()=>awardPanel());
   out.push(()=>timPanel());
   const st=C.stats;
-  for(let i=0;i<st.length;i+=3){const part=st.slice(i,i+3);out.push(()=>statPanel(part,i));}
+  const pages=Math.ceil(st.length/3),per=Math.ceil(st.length/pages);
+  for(let i=0;i<st.length;i+=per){const part=st.slice(i,i+per);out.push(()=>statPanel(part,i));}
   out.push(()=>!C.medals.length?`<h2>🏅 Pokalschrank</h2>${emptyP("Der Pokalschrank ist noch leer")}`:shelfPanel());
   return out;
 }
@@ -238,13 +246,16 @@ function show(){
   if(old){old.classList.remove("on");setTimeout(()=>old.remove(),700);}
   document.getElementById("dots").innerHTML=panels.map((_,i)=>`<i class="${i===idx?"on":""}"></i>`).join("");
 }
+let lastTicker="";
+function renderTicker(){const t=C.ticker.map(s=>"+++ "+s+" ").join("")+"+++";if(t===lastTicker)return;lastTicker=t;
+  const el=document.getElementById("ticker");el.textContent=t;el.style.setProperty("--dur",Math.max(20,Math.round(t.length/7))+"s");}
 function tick(){
   const now=BSM.nowMin();
   document.getElementById("clock").textContent=fmtClock(now);
   document.querySelectorAll(".panel.on .timer[data-start]").forEach(t=>{t.textContent=fmtDurShort(now-Number(t.dataset.start));});
   if(C){document.getElementById("progbar").style.width=C.tim.progress+"%";document.getElementById("progtxt").textContent="Marathon "+C.tim.progress+" %";}
 }
-function load(){BSM.loadState("").then(st=>{S=st;C=BSM.compute(S);if(!document.querySelector(".panel.on .card,.panel.on table,.panel.on .award,.panel.on .big"))show();tick();}).catch(()=>{});}
+function load(){BSM.loadState("").then(st=>{S=st;C=BSM.compute(S);renderTicker();if(!document.querySelector(".panel.on .card,.panel.on table,.panel.on .award,.panel.on .big"))show();tick();}).catch(()=>{});}
 load();setInterval(load,15000);setInterval(tick,1000);
 setInterval(()=>{if(!C)return;C=BSM.compute(S);idx=(idx+1)%Math.max(1,build().length);show();},20000);
 document.addEventListener("keydown",e=>{if(!C)return;if(e.key==="ArrowRight"){idx=(idx+1)%panels.length;show();}if(e.key==="ArrowLeft"){idx=(idx-1+panels.length)%panels.length;show();}
