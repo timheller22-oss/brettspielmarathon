@@ -46,6 +46,9 @@ tr.first td{background:#fff3bf}
 .award .ic{font-size:3.6vw}
 .award b{display:block;font:400 1.6vw var(--fd);letter-spacing:.05em;color:#555}
 .award .who{font:400 2.6vw/1 var(--fd);letter-spacing:.03em}
+.cvrow{display:flex;gap:1.2vw;align-items:flex-start}
+.cv{width:9vw;height:9vw;flex:none;object-fit:contain;background:#fff;border:.3vw solid #111;padding:.3vw;transform:rotate(-3deg)}
+.cv.sm{width:6vw;height:6vw}
 .big{font:400 5vw/1 var(--fd);letter-spacing:.03em;color:var(--red);-webkit-text-stroke:.12vw #111}
 .empty{flex:1;display:grid;place-items:center;text-align:center;font:400 3vw var(--fd);color:#555}
 .bar{height:2vw;border:.3vw solid #111;background:#fff;position:relative}.bar i{position:absolute;inset:0 auto 0 0;background:var(--green)}
@@ -69,24 +72,27 @@ const {esc,fmtClock,fmtDur,fmtDurShort,norm}=BSM;
 const COLS=["#ffd9d9","#fff3bf","#cdeeff","#e5f6c8","#ffe2c7","#f6d8ff"];
 let S=null,C=null,idx=0,panels=[];
 
+function coverOf(name){if(!S||!name)return "";const g=S.games.find(x=>x.name===name)||S.games.find(x=>x.name===String(name).replace(/\s*\(Tisch \d+\)$/,""));return g&&g.cover?g.cover:"";}
+function cv(name,cls){const u=coverOf(name);return u?`<img class="cv ${cls||""}" src="${esc(u)}" alt="" referrerpolicy="no-referrer">`:"";}
+function emptyP(t){return `<div class="empty">${t}</div>`;}
 function chips(list){return `<div class="names">${list.map(n=>`<span class="chip">${esc(n)}</span>`).join("")}</div>`;}
 
 function build(){
   const out=[];
-  if(C.running.length) out.push(()=>`<h2>▶ Läuft gerade</h2><div class="grid" style="grid-template-columns:repeat(${Math.min(3,C.running.length)},1fr)">${
+  out.push(()=>!C.running.length?`<h2>▶ Läuft gerade</h2>${emptyP("Gerade läuft keine Partie")}`:`<h2>▶ Läuft gerade</h2><div class="grid" style="grid-template-columns:repeat(${Math.min(3,C.running.length)},1fr)">${
     C.running.map((p,i)=>{const over=p.plan?Math.round(p.dur-p.plan.duration):null;
-      return `<div class="card" style="--c:${COLS[i%6]}"><h3>${esc(p.game)}</h3><div class="timer" data-start="${p.s}">${fmtDurShort(p.dur)}</div>
+      return `<div class="card" style="--c:${COLS[i%6]}"><div class="cvrow">${cv(p.game)}<div><h3>${esc(p.game)}</h3><div class="timer" data-start="${p.s}">${fmtDurShort(p.dur)}</div></div></div>
       <div>seit ${esc(p.start)} Uhr${over!=null&&over>0?` · <span style="color:#c00">${over} min über Plan</span>`:p.plan?` · geplant ${p.plan.duration} min`:""}</div>${chips(p.players.map(x=>x.name))}</div>`;}).join("")}</div>`);
-  if(C.next.length) out.push(()=>`<h2>⏭ Gleich geht's los</h2><div class="grid" style="grid-template-columns:repeat(${C.next.length},1fr)">${
+  out.push(()=>!C.next.length?`<h2>⏭ Gleich geht's los</h2>${emptyP("Alle geplanten Spiele sind gestartet")}`:`<h2>⏭ Gleich geht's los</h2><div class="grid" style="grid-template-columns:repeat(${C.next.length},1fr)">${
     C.next.map((g,i)=>{const pl=[...(g.host!==false?[S.host]:[]),...S.bookings.filter(b=>b.key===g.name).map(b=>b.name)];
-      return `<div class="card" style="--c:${COLS[(i+2)%6]}"><h3>${esc(g.name)}</h3><div class="timer">${esc(g.start)} Uhr</div><div>${g.duration} min geplant · ${pl.length} von ${g.seats} Plätzen belegt</div>${chips(pl)}</div>`;}).join("")}</div>`);
-  if(C.medals.length) out.push(()=>`<h2>🥇 Medaillenspiegel</h2><table><tr><th></th><th>Name</th><th class="r">🥇</th><th class="r">🥈</th><th class="r">🥉</th><th class="r">Partien</th></tr>${
+      return `<div class="card" style="--c:${COLS[(i+2)%6]}"><div class="cvrow">${cv(g.name)}<div><h3>${esc(g.name)}</h3><div class="timer">${esc(g.start)} Uhr</div></div></div><div>${g.duration} min geplant · ${pl.length} von ${g.seats} Plätzen belegt</div>${chips(pl)}</div>`;}).join("")}</div>`);
+  out.push(()=>!C.medals.length?`<h2>🥇 Medaillenspiegel</h2>${emptyP("Noch keine Medaillen vergeben")}`:`<h2>🥇 Medaillenspiegel</h2><table><tr><th></th><th>Name</th><th class="r">🥇</th><th class="r">🥈</th><th class="r">🥉</th><th class="r">Partien</th></tr>${
     C.medals.slice(0,9).map((x,i)=>`<tr class="${i?"":"first"}"><td class="rank">${i+1}.</td><td>${esc(x.name)}</td><td class="r">${x.gold}</td><td class="r">${x.silver}</td><td class="r">${x.bronze}</td><td class="r">${x.plays}</td></tr>`).join("")}</table>`);
-  if(C.byPoints.length) out.push(()=>`<h2>🏆 Marathon-Champion <small>1 Punkt pro geschlagenem Gegner</small></h2><table><tr><th></th><th>Name</th><th class="r">Punkte</th><th class="r">Partien</th><th class="r">Siege</th><th class="r">Spielzeit</th></tr>${
+  out.push(()=>!C.byPoints.length?`<h2>🏆 Marathon-Champion</h2>${emptyP("Noch keine Partie beendet")}`:`<h2>🏆 Marathon-Champion <small>1 Punkt pro geschlagenem Gegner</small></h2><table><tr><th></th><th>Name</th><th class="r">Punkte</th><th class="r">Partien</th><th class="r">Siege</th><th class="r">Spielzeit</th></tr>${
     C.byPoints.slice(0,9).map((x,i)=>`<tr class="${i?"":"first"}"><td class="rank">${i+1}.</td><td>${esc(x.name)}</td><td class="r">${x.points}</td><td class="r">${x.plays}</td><td class="r">${x.wins}</td><td class="r">${fmtDurShort(x.time)} h</td></tr>`).join("")}</table>`);
-  if(C.byQuote.length) out.push(()=>`<h2>🎯 Spielkönig <small>Anteil geschlagener Gegner, ab 2 Partien</small></h2><table><tr><th></th><th>Name</th><th class="r">Leistungsquote</th><th class="r">Partien</th></tr>${
+  out.push(()=>!C.byQuote.length?`<h2>🎯 Spielkönig</h2>${emptyP("Wertung ab 2 beendeten Partien")}`:`<h2>🎯 Spielkönig <small>Anteil geschlagener Gegner, ab 2 Partien</small></h2><table><tr><th></th><th>Name</th><th class="r">Leistungsquote</th><th class="r">Partien</th></tr>${
     C.byQuote.slice(0,9).map((x,i)=>`<tr class="${i?"":"first"}"><td class="rank">${i+1}.</td><td>${esc(x.name)}</td><td class="r">${Math.round(x.quote*100)} %</td><td class="r">${x.plays}</td></tr>`).join("")}</table>`);
-  if(C.awards.length) out.push(()=>`<h2>⭐ Awards</h2><div class="grid" style="grid-template-columns:repeat(${C.awards.length>4?3:2},1fr)">${
+  out.push(()=>!C.awards.length?`<h2>⭐ Awards</h2>${emptyP("Die Awards werden im Laufe des Tages vergeben")}`:`<h2>⭐ Awards</h2><div class="grid" style="grid-template-columns:repeat(${C.awards.length>4?3:2},1fr)">${
     C.awards.map(a=>`<div class="award"><span class="ic">${a.icon}</span><div><b>${esc(a.title)}</b><div class="who">${esc(a.who)}</div><div>${esc(a.val)}</div></div></div>`).join("")}</div>`);
   out.push(()=>{const t=C.tim;return `<h2>🎂 Tims Marathon</h2><div class="grid" style="grid-template-columns:repeat(3,1fr)">
     <div class="card" style="--c:#fff3bf"><h3>Spielzeit</h3><div class="big">${fmtDurShort(t.time)} h</div><div>${t.plays} Partien beendet</div></div>
@@ -94,8 +100,8 @@ function build(){
     <div class="card" style="--c:#ffd9d9"><h3>Zeitplan</h3><div class="big">${t.delay==null?"–":t.delay>0?"+"+t.delay+" min":t.delay<0?t.delay+" min":"pünktlich"}</div><div>${t.delay==null?"Noch nichts gestartet":t.delay>0?"hinter dem Plan":t.delay<0?"vor dem Plan":"genau im Plan"}</div></div></div>`;});
   const st=C.stats;
   for(let i=0;i<st.length;i+=3){const part=st.slice(i,i+3);
-    out.push(()=>`<h2>📊 Statistik</h2><div class="grid" style="grid-template-columns:repeat(${part.length},1fr)">${part.map((s,j)=>`<div class="card" style="--c:${COLS[(i+j+3)%6]}"><h3>${s.icon} ${esc(s.title)}</h3><div class="big" style="font-size:${s.big.length>14?3.2:5}vw">${esc(s.big)}</div><div>${esc(s.text)}</div>${s.bar!=null?`<div class="bar"><i style="width:${s.bar}%"></i></div>`:""}</div>`).join("")}</div>`);}
-  if(C.medals.length) out.push(()=>`<h2>🏅 Pokalschrank</h2><div class="grid" style="grid-template-columns:repeat(3,1fr);align-content:start">${
+    out.push(()=>`<h2>📊 Statistik</h2><div class="grid" style="grid-template-columns:repeat(${part.length},1fr)">${part.map((s,j)=>`<div class="card" style="--c:${COLS[(i+j+3)%6]}"><h3>${s.icon} ${esc(s.title)}</h3>${s.game?cv(s.game,"sm"):""}<div class="big" style="font-size:${s.big.length>14?3.2:5}vw">${esc(s.big)}</div><div>${esc(s.text)}</div>${s.bar!=null?`<div class="bar"><i style="width:${s.bar}%"></i></div>`:""}</div>`).join("")}</div>`);}
+  out.push(()=>!C.medals.length?`<h2>🏅 Pokalschrank</h2>${emptyP("Der Pokalschrank ist noch leer")}`:`<h2>🏅 Pokalschrank</h2><div class="grid" style="grid-template-columns:repeat(3,1fr);align-content:start">${
     C.medals.slice(0,12).map(x=>`<div class="award"><div><div class="who">${esc(x.name)}</div><div class="medal">${"🥇".repeat(x.gold)}${"🥈".repeat(x.silver)}${"🥉".repeat(x.bronze)}</div></div></div>`).join("")}</div>`);
   return out;
 }

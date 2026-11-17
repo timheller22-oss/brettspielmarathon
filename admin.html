@@ -131,7 +131,8 @@ function finishUI(p){
 function playBox(p,running){
   const res=p.done?`<div class="res">${p.players.slice().sort((a,b)=>(a.place||9)-(b.place||9)).map(x=>`<span>${p.team?(x.win?"🏆 ":""):x.place+". "}${esc(x.name)}</span>`).join("")}</div>`:
     `<div class="res">${p.players.map(x=>`<span>${esc(x.name)}</span>`).join("")}</div>`;
-  const head=`<div class="row" style="justify-content:space-between"><h2 style="font-size:1.4rem">${esc(p.game)}${p.spontan?" (spontan)":""}${p.team?" · Team":""}</h2><span class="meta">${esc(p.start)}${p.done?"–"+esc(p.end)+" · "+BSM.fmtDur(p.dur):" · läuft seit "+BSM.fmtDur(p.dur)}</span></div>`;
+  const g=S.games.find(x=>x.name===p.game);
+  const head=`<div class="row" style="justify-content:space-between">${g&&g.cover?`<img src="${esc(g.cover)}" alt="" referrerpolicy="no-referrer" style="width:56px;height:56px;object-fit:contain;border:3px solid #111;background:#fff">`:""}<h2 style="font-size:1.4rem;flex:1">${esc(p.game)}${p.spontan?" (spontan)":""}${p.team?" · Team":""}</h2><span class="meta">${esc(p.start)}${p.done?"–"+esc(p.end)+" · "+BSM.fmtDur(p.dur):" · läuft seit "+BSM.fmtDur(p.dur)}</span></div>`;
   const edit=`<div class="row">Start <input type="time" data-st="${p.id}" value="${esc(p.start)}">${p.done?` Ende <input type="time" data-en="${p.id}" value="${esc(p.end)}">`:""}<button class="ghost" data-times="${p.id}">Zeiten speichern</button></div>`;
   const del=confirmDel===p.id?`<button class="warn" data-delyes="${p.id}">Wirklich löschen</button><button class="ghost" data-delno="${p.id}">Nein</button>`:`<button class="ghost" data-del="${p.id}">Löschen</button>`;
   if(openFinish===p.id)return `<div class="${running?"box run":"done"}">${head}${finishUI(p)}</div>`;

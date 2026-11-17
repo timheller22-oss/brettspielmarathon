@@ -85,18 +85,21 @@ function compute(S){
   // Statistiken
   const stats=[];
   const totalTime=people.reduce((a,x)=>a+x.time,0);
-  if(totalTime>0)stats.push({icon:"⏱️",title:"Gemeinsame Spielzeit",big:fmtDurShort(totalTime)+" h",text:"haben alle zusammen schon gespielt"});
+  stats.push({icon:"⏱️",title:"Gemeinsame Spielzeit",big:fmtDurShort(totalTime)+" h",text:"haben alle zusammen schon gespielt"});
   const done=plays.filter(p=>p.done);
   if(done.length){const l=done.slice().sort((a,b)=>b.dur-a.dur)[0];
     const over=l.plan?Math.round(l.dur-l.plan.duration):null;
-    stats.push({icon:"🐌",title:"Längste Partie",big:fmtDur(l.dur),text:l.game+(over!=null?(over>0?` (${over} min über dem Plan)`:` (${-over} min unter dem Plan)`):"")});}
+    stats.push({icon:"🐌",title:"Längste Partie",big:fmtDur(l.dur),text:l.game+(over!=null?(over>0?` (${over} min über dem Plan)`:` (${-over} min unter dem Plan)`):""),game:l.game});}
+  else stats.push({icon:"🐌",title:"Längste Partie",big:"–",text:"Noch keine Partie beendet"});
   const gameFans={};plays.forEach(p=>{const k=p.game.replace(/\s*\(Tisch \d+\)$/,"");gameFans[k]=gameFans[k]||new Set();p.players.forEach(x=>gameFans[k].add(norm(x.name)));});
   const fav=Object.entries(gameFans).sort((a,b)=>b[1].size-a[1].size)[0];
-  if(fav&&fav[1].size>1)stats.push({icon:"❤️",title:"Beliebtestes Spiel",big:fav[0],text:fav[1].size+" verschiedene Mitspieler"});
+  if(fav)stats.push({icon:"❤️",title:"Beliebtestes Spiel",big:fav[0],text:fav[1].size+" verschiedene Mitspieler",game:fav[0]});
+  else stats.push({icon:"❤️",title:"Beliebtestes Spiel",big:"–",text:"Noch keine Partie gestartet"});
   const pairs={};plays.forEach(p=>{const ns=p.players.map(x=>x.name).filter(n=>norm(n)!==norm(host));
     for(let i=0;i<ns.length;i++)for(let j=i+1;j<ns.length;j++){const k=[ns[i],ns[j]].sort().join(" & ");pairs[k]=(pairs[k]||0)+1;}});
   const duo=Object.entries(pairs).sort((a,b)=>b[1]-a[1])[0];
-  if(duo&&duo[1]>1)stats.push({icon:"👯",title:"Unzertrennlich",big:duo[0],text:duo[1]+"× zusammen am Tisch"});
+  if(duo)stats.push({icon:"👯",title:"Unzertrennlich",big:duo[0],text:duo[1]+"× zusammen am Tisch"});
+  else stats.push({icon:"👯",title:"Unzertrennlich",big:"–",text:"Wer sitzt am häufigsten zusammen am Tisch?"});
   stats.push({icon:"🏁",title:"Marathon-Fortschritt",big:progress+" %",text:"des Tages sind geschafft",bar:progress});
 
   // Als Nächstes
