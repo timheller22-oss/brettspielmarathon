@@ -110,5 +110,7 @@ function compute(S){
   return {now,plays,running:plays.filter(p=>!p.done),done,people,byPoints,byQuote,medals,awards,tim,stats,next,host};
 }
 
-window.BSM={API,toMin,nowMin,fmtClock,fmtDur,fmtDurShort,norm,esc,api,loadState,compute};
+function coverOf(S,name){if(!S||!name)return "";const base=String(name).replace(/\s*\(Tisch \d+\)$/,"");const g=(S.games||[]).find(x=>x.name===name)||(S.games||[]).find(x=>x.name===base);if(g&&g.cover)return g.cover;const p=(S.plays||[]).slice().reverse().find(x=>(x.game===name||x.game===base)&&x.cover);return p?p.cover:"";}
+
+window.BSM={coverOf,API,toMin,nowMin,fmtClock,fmtDur,fmtDurShort,norm,esc,api,loadState,compute};
 })();

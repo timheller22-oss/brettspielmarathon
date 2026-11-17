@@ -38,6 +38,9 @@ button:disabled{opacity:.45}
 .done{border:3px solid #111;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
 .res{display:flex;flex-wrap:wrap;gap:6px}
 .res span{border:2px solid #111;padding:0 8px}
+.filebtn{font:400 1.1rem var(--fd);letter-spacing:.05em;cursor:pointer;border:3px solid #111;background:var(--yel);padding:6px 14px}
+.prev{width:56px;height:56px;object-fit:contain;border:3px solid #111;background:#fff}
+#freeRow[hidden]{display:none!important}
 [hidden]{display:none!important}
 </style>
 </head>
@@ -57,7 +60,11 @@ button:disabled{opacity:.45}
     <section class="box" id="newbox">
       <h2>＋ Neue Partie starten</h2>
       <div class="row"><select id="game"></select></div>
-      <div class="row" id="freeRow" hidden><input id="freeName" placeholder="Spielname, z. B. Kniffel"><label><input type="checkbox" id="freeTeam"> Teamspiel</label></div>
+      <div id="freeRow" hidden style="display:flex;flex-direction:column;gap:10px">
+        <div class="row"><input id="freeName" placeholder="Spielname, z. B. Kniffel"><label><input type="checkbox" id="freeTeam"> Teamspiel</label></div>
+        <div class="meta">Bild (optional): Foto von der Schachtel machen oder eine Bild-Adresse einfügen.</div>
+        <div class="row"><label class="filebtn">📷 Foto wählen<input type="file" accept="image/*" id="freeFile" hidden></label><input id="freeUrl" placeholder="oder https://… Bild-Adresse"><img id="freePrev" class="prev" alt="" hidden></div>
+      </div>
       <div class="meta">Mitspieler antippen (gelb = spielt mit):</div>
       <div class="pick" id="players"></div>
       <div class="row"><input id="addName" placeholder="Weiteren Namen hinzufügen"><button class="ghost" id="addBtn">Hinzufügen</button></div>
@@ -74,6 +81,12 @@ const nowHHMM=()=>{const d=new Date();return String(d.getHours()).padStart(2,"0"
 let PIN="";try{PIN=localStorage.getItem("bsm-pin")||"";}catch(e){}
 let S=null,C=null,busy=false,sel=new Set(),extra=[],openFinish=null,finishState={},confirmDel=null;
 
+function shrink(file){return new Promise((res,rej)=>{const img=new Image(),u=URL.createObjectURL(file);
+  img.onload=()=>{const k=Math.min(1,800/Math.max(img.width,img.height)),c=document.createElement("canvas");c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);
+    c.getContext("2d").drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(u);res(c.toDataURL("image/jpeg",.82));};
+  img.onerror=()=>rej(new Error("Das Bild konnte nicht gelesen werden."));img.src=u;});}
+function upload(file,name){setStatus("Lade Bild hoch …");return shrink(file).then(d=>api("adminUpload",[PIN,d,name])).then(r=>{setStatus("Bild hochgeladen.");return r.url;});}
+let coverEdit=null;
 function setStatus(m,err){const s=$("#status");s.textContent=m||"";s.className="status"+(err?" err":"");}
 function run(fn,args,after){if(busy)return;busy=true;setStatus("Speichere …");
   api(fn,[PIN,...args]).then(r=>{busy=false;setStatus(r.msg||"Gespeichert.");if(after)after();load();})
@@ -101,12 +114,14 @@ function renderPick(){
 }
 $("#game").onchange=preselect;
 $("#addBtn").onclick=()=>{const n=$("#addName").value.trim();if(!n)return;extra.push(n);sel.add(norm(n));$("#addName").value="";renderPick();};
+$("#freeFile").onchange=e=>{const f=e.target.files[0];if(!f)return;upload(f,$("#freeName").value||"spiel").then(u=>{$("#freeUrl").value=u;$("#freePrev").src=u;$("#freePrev").hidden=false;}).catch(er=>setStatus(er.message,true));};
+$("#freeUrl").oninput=()=>{const u=$("#freeUrl").value.trim();$("#freePrev").hidden=!/^https:\/\//.test(u);if(!$("#freePrev").hidden)$("#freePrev").src=u;};
 $("#startNow").onclick=()=>{$("#startT").value=nowHHMM();};
 $("#startBtn").onclick=()=>{
   const g=selectedGame(),name=g?g.name:$("#freeName").value.trim();
   if(!name)return setStatus("Bitte einen Spielnamen eingeben.",true);
   const players=knownNames().filter(n=>sel.has(norm(n)));
-  run("adminStart",[name,players,$("#startT").value,g?!!g.team:$("#freeTeam").checked,!g],()=>{$("#freeName").value="";});
+  run("adminStart",[name,players,$("#startT").value,g?!!g.team:$("#freeTeam").checked,!g,g?"":$("#freeUrl").value.trim()],()=>{$("#freeName").value="";$("#freeUrl").value="";$("#freePrev").hidden=true;});
 };
 
 function renderGameSelect(){
@@ -131,12 +146,13 @@ function finishUI(p){
 function playBox(p,running){
   const res=p.done?`<div class="res">${p.players.slice().sort((a,b)=>(a.place||9)-(b.place||9)).map(x=>`<span>${p.team?(x.win?"🏆 ":""):x.place+". "}${esc(x.name)}</span>`).join("")}</div>`:
     `<div class="res">${p.players.map(x=>`<span>${esc(x.name)}</span>`).join("")}</div>`;
-  const g=S.games.find(x=>x.name===p.game);
-  const head=`<div class="row" style="justify-content:space-between">${g&&g.cover?`<img src="${esc(g.cover)}" alt="" referrerpolicy="no-referrer" style="width:56px;height:56px;object-fit:contain;border:3px solid #111;background:#fff">`:""}<h2 style="font-size:1.4rem;flex:1">${esc(p.game)}${p.spontan?" (spontan)":""}${p.team?" · Team":""}</h2><span class="meta">${esc(p.start)}${p.done?"–"+esc(p.end)+" · "+BSM.fmtDur(p.dur):" · läuft seit "+BSM.fmtDur(p.dur)}</span></div>`;
+  const cov=BSM.coverOf(S,p.game);
+  const head=`<div class="row" style="justify-content:space-between">${cov?`<img class="prev" src="${esc(cov)}" alt="" referrerpolicy="no-referrer">`:""}<h2 style="font-size:1.4rem;flex:1">${esc(p.game)}${p.spontan?" (spontan)":""}${p.team?" · Team":""}</h2><span class="meta">${esc(p.start)}${p.done?"–"+esc(p.end)+" · "+BSM.fmtDur(p.dur):" · läuft seit "+BSM.fmtDur(p.dur)}</span></div>`;
   const edit=`<div class="row">Start <input type="time" data-st="${p.id}" value="${esc(p.start)}">${p.done?` Ende <input type="time" data-en="${p.id}" value="${esc(p.end)}">`:""}<button class="ghost" data-times="${p.id}">Zeiten speichern</button></div>`;
   const del=confirmDel===p.id?`<button class="warn" data-delyes="${p.id}">Wirklich löschen</button><button class="ghost" data-delno="${p.id}">Nein</button>`:`<button class="ghost" data-del="${p.id}">Löschen</button>`;
+  const coverUI=coverEdit===p.id?`<div class="row"><label class="filebtn">📷 Foto wählen<input type="file" accept="image/*" data-cfile="${p.id}" hidden></label><input data-curl="${p.id}" placeholder="oder https://… Bild-Adresse" value="${esc(cov)}"><button class="ok" data-csave="${p.id}">Bild speichern</button><button class="ghost" data-ccancel="${p.id}">Abbrechen</button></div>`:"";
   if(openFinish===p.id)return `<div class="${running?"box run":"done"}">${head}${finishUI(p)}</div>`;
-  return `<div class="${running?"box run":"done"}">${head}${res}${edit}<div class="row">${running?`<button class="ok" data-fin-open="${p.id}">Beenden</button>`:`<button class="ghost" data-fin-open="${p.id}">Ergebnis ändern</button>`}${del}</div></div>`;
+  return `<div class="${running?"box run":"done"}">${head}${res}${edit}${coverUI}<div class="row">${running?`<button class="ok" data-fin-open="${p.id}">Beenden</button>`:`<button class="ghost" data-fin-open="${p.id}">Ergebnis ändern</button>`}<button class="ghost" data-cover="${p.id}">${cov?"Bild ändern":"Bild hinzufügen"}</button>${del}</div></div>`;
 }
 function render(){
   C=BSM.compute(S);
@@ -159,11 +175,16 @@ function bind(){
     run("adminFinish",[id,st.end,result],()=>{openFinish=null;});});
   q("data-times",id=>{const st=document.querySelector(`[data-st="${id}"]`).value,en=document.querySelector(`[data-en="${id}"]`);run("adminEdit",[id,{start:st,end:en?en.value:undefined}]);});
   q("data-del",id=>{confirmDel=id;render();});
+  q("data-cover",id=>{coverEdit=id;render();});
+  q("data-ccancel",()=>{coverEdit=null;render();});
+  q("data-csave",id=>{const u=document.querySelector(`[data-curl="${id}"]`).value.trim();run("adminSetCover",[id,u],()=>{coverEdit=null;});});
+  document.querySelectorAll("[data-cfile]").forEach(i=>i.onchange=()=>{const f=i.files[0],id=i.dataset.cfile;if(!f)return;const p=C.plays.find(x=>x.id===id);
+    upload(f,p?p.game:"spiel").then(u=>run("adminSetCover",[id,u],()=>{coverEdit=null;})).catch(er=>setStatus(er.message,true));});
   q("data-delno",()=>{confirmDel=null;render();});
   q("data-delyes",id=>{confirmDel=null;run("adminDelete",[id]);});
 }
 function load(){BSM.loadState("").then(st=>{S=st;renderGameSelect();if(!$("#players").children.length)preselect();else renderPick();if(!busy)render();}).catch(()=>setStatus("Daten gerade nicht erreichbar.",true));}
-setInterval(()=>{if(!busy&&!openFinish&&!$("#app").hidden&&document.activeElement.tagName!=="INPUT")load();},20000);
+setInterval(()=>{if(!busy&&!openFinish&&!coverEdit&&!$("#app").hidden&&document.activeElement.tagName!=="INPUT")load();},20000);
 if(PIN)api("adminCheck",[PIN]).then(enter).catch(logout);
 </script>
 </body>

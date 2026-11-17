@@ -72,7 +72,7 @@ const {esc,fmtClock,fmtDur,fmtDurShort,norm}=BSM;
 const COLS=["#ffd9d9","#fff3bf","#cdeeff","#e5f6c8","#ffe2c7","#f6d8ff"];
 let S=null,C=null,idx=0,panels=[];
 
-function coverOf(name){if(!S||!name)return "";const g=S.games.find(x=>x.name===name)||S.games.find(x=>x.name===String(name).replace(/\s*\(Tisch \d+\)$/,""));return g&&g.cover?g.cover:"";}
+function coverOf(name){return BSM.coverOf(S,name);}
 function cv(name,cls){const u=coverOf(name);return u?`<img class="cv ${cls||""}" src="${esc(u)}" alt="" referrerpolicy="no-referrer">`:"";}
 function emptyP(t){return `<div class="empty">${t}</div>`;}
 function chips(list){return `<div class="names">${list.map(n=>`<span class="chip">${esc(n)}</span>`).join("")}</div>`;}
