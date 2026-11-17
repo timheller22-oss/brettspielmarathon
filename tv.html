@@ -49,6 +49,31 @@ tr.first td{background:#fff3bf}
 .cvrow{display:flex;gap:1.2vw;align-items:flex-start}
 .cv{width:9vw;height:9vw;flex:none;object-fit:contain;background:#fff;border:.3vw solid #111;padding:.3vw;transform:rotate(-3deg)}
 .cv.sm{width:6vw;height:6vw}
+/* Medaillenspiegel */
+.md{--m1:#ffe27a;--m2:#e0a800;--m3:#8a6400;position:relative;display:inline-grid;place-items:center;width:2.9vw;height:2.9vw;border-radius:50%;
+ background:radial-gradient(circle at 35% 30%,#fff8 0 18%,transparent 19%),radial-gradient(circle,var(--m1) 0 55%,var(--m2) 56% 100%);
+ border:.22vw solid var(--m3);box-shadow:inset 0 0 0 .25vw #fff6,.15vw .2vw 0 #111;font:400 1.6vw/1 var(--fd);color:#111}
+.md.s{--m1:#f4f6f8;--m2:#aab2bd;--m3:#5e6670}
+.md.b{--m1:#f2b98a;--m2:#c46a2b;--m3:#7a3a12}
+.md.big{width:5.4vw;height:5.4vw;font-size:3vw}
+.md.big{color:#111;-webkit-text-stroke:0;margin-top:-.9vw}
+.rib{display:block;width:3.2vw;height:2.6vw;border:.2vw solid #111;border-bottom:none;
+ background:linear-gradient(90deg,#00a6ed 0 33%,#fff 33% 66%,#ff3d3d 66%);clip-path:polygon(0 0,100% 0,75% 100%,25% 100%)}
+.ms{display:flex;gap:2vw;flex:1;min-height:0;align-items:stretch}
+.podium{flex:1.1;display:flex;align-items:flex-end;justify-content:center;gap:.8vw;padding-top:1vw}
+.pod{flex:1;max-width:14vw;display:flex;flex-direction:column;align-items:center;gap:.5vw}
+.pod .nm{font:400 2.2vw/1 var(--fd);letter-spacing:.03em;text-align:center}
+.pod .cnt{display:flex;gap:.6vw;font-size:1.3vw;align-items:center}
+.pod .cnt span{display:flex;align-items:center;gap:.2vw}
+.pod .cnt .md{width:1.5vw;height:1.5vw;border-width:.15vw;box-shadow:none}
+.blk{width:100%;border:.35vw solid #111;display:grid;place-items:start center;padding-top:.6vw;font:400 4.5vw/1 var(--fd);color:#fff;-webkit-text-stroke:.15vw #111;
+ background-image:radial-gradient(rgba(255,255,255,.35) .3vw,transparent .35vw);background-size:1.2vw 1.2vw}
+.pod.p1 .blk{height:15vw;background-color:#ffcc00}.pod.p2 .blk{height:11vw;background-color:#b8c0ca}.pod.p3 .blk{height:8vw;background-color:#d08a52}
+.mt{flex:1;align-self:flex-start;font-size:1.6vw}
+.mt th .md{width:1.8vw;height:1.8vw;box-shadow:none;border-width:.15vw}
+.mt td.c,.mt th.c{text-align:center}
+.mt td.sum{font:400 1.9vw var(--fd)}
+.mt .zero{color:#bbb}
 .big{font:400 5vw/1 var(--fd);letter-spacing:.03em;color:var(--red);-webkit-text-stroke:.12vw #111}
 .empty{flex:1;display:grid;place-items:center;text-align:center;font:400 3vw var(--fd);color:#555}
 .bar{height:2vw;border:.3vw solid #111;background:#fff;position:relative}.bar i{position:absolute;inset:0 auto 0 0;background:var(--green)}
@@ -75,6 +100,16 @@ let S=null,C=null,idx=0,panels=[];
 function coverOf(name){return BSM.coverOf(S,name);}
 function cv(name,cls){const u=coverOf(name);return u?`<img class="cv ${cls||""}" src="${esc(u)}" alt="" referrerpolicy="no-referrer">`:"";}
 function emptyP(t){return `<div class="empty">${t}</div>`;}
+function medalPanel(){
+  const m=C.medals,top=m.slice(0,3),rest=m.slice(0,10);
+  const cnt=x=>`<div class="cnt"><span><i class="md"></i>${x.gold}</span><span><i class="md s"></i>${x.silver}</span><span><i class="md b"></i>${x.bronze}</span></div>`;
+  const pod=(x,r)=>x?`<div class="pod p${r}"><i class="rib"></i><span class="md big ${r===2?"s":r===3?"b":""}">${r}</span><div class="nm">${esc(x.name)}</div>${cnt(x)}<div class="blk">${r}</div></div>`:`<div class="pod p${r}"></div>`;
+  const z=v=>v?v:`<span class="zero">0</span>`;
+  return `<h2>🥇 Medaillenspiegel</h2><div class="ms">
+    <div class="podium">${pod(top[1],2)}${pod(top[0],1)}${pod(top[2],3)}</div>
+    <table class="mt"><tr><th>Rang</th><th>Name</th><th class="c"><i class="md"></i></th><th class="c"><i class="md s"></i></th><th class="c"><i class="md b"></i></th><th class="c">Gesamt</th></tr>${
+      rest.map((x,i)=>`<tr class="${i?"":"first"}"><td class="rank">${i+1}.</td><td>${esc(x.name)}</td><td class="c">${z(x.gold)}</td><td class="c">${z(x.silver)}</td><td class="c">${z(x.bronze)}</td><td class="c sum">${x.gold+x.silver+x.bronze}</td></tr>`).join("")}</table></div>`;
+}
 function chips(list){return `<div class="names">${list.map(n=>`<span class="chip">${esc(n)}</span>`).join("")}</div>`;}
 
 function build(){
@@ -86,8 +121,7 @@ function build(){
   out.push(()=>!C.next.length?`<h2>⏭ Gleich geht's los</h2>${emptyP("Alle geplanten Spiele sind gestartet")}`:`<h2>⏭ Gleich geht's los</h2><div class="grid" style="grid-template-columns:repeat(${C.next.length},1fr)">${
     C.next.map((g,i)=>{const pl=[...(g.host!==false?[S.host]:[]),...S.bookings.filter(b=>b.key===g.name).map(b=>b.name)];
       return `<div class="card" style="--c:${COLS[(i+2)%6]}"><div class="cvrow">${cv(g.name)}<div><h3>${esc(g.name)}</h3><div class="timer">${esc(g.start)} Uhr</div></div></div><div>${g.duration} min geplant · ${pl.length} von ${g.seats} Plätzen belegt</div>${chips(pl)}</div>`;}).join("")}</div>`);
-  out.push(()=>!C.medals.length?`<h2>🥇 Medaillenspiegel</h2>${emptyP("Noch keine Medaillen vergeben")}`:`<h2>🥇 Medaillenspiegel</h2><table><tr><th></th><th>Name</th><th class="r">🥇</th><th class="r">🥈</th><th class="r">🥉</th><th class="r">Partien</th></tr>${
-    C.medals.slice(0,9).map((x,i)=>`<tr class="${i?"":"first"}"><td class="rank">${i+1}.</td><td>${esc(x.name)}</td><td class="r">${x.gold}</td><td class="r">${x.silver}</td><td class="r">${x.bronze}</td><td class="r">${x.plays}</td></tr>`).join("")}</table>`);
+  out.push(()=>!C.medals.length?`<h2>🥇 Medaillenspiegel</h2>${emptyP("Noch keine Medaillen vergeben")}`:medalPanel());
   out.push(()=>!C.byPoints.length?`<h2>🏆 Marathon-Champion</h2>${emptyP("Noch keine Partie beendet")}`:`<h2>🏆 Marathon-Champion <small>1 Punkt pro geschlagenem Gegner</small></h2><table><tr><th></th><th>Name</th><th class="r">Punkte</th><th class="r">Partien</th><th class="r">Siege</th><th class="r">Spielzeit</th></tr>${
     C.byPoints.slice(0,9).map((x,i)=>`<tr class="${i?"":"first"}"><td class="rank">${i+1}.</td><td>${esc(x.name)}</td><td class="r">${x.points}</td><td class="r">${x.plays}</td><td class="r">${x.wins}</td><td class="r">${fmtDurShort(x.time)} h</td></tr>`).join("")}</table>`);
   out.push(()=>!C.byQuote.length?`<h2>🎯 Spielkönig</h2>${emptyP("Wertung ab 2 beendeten Partien")}`:`<h2>🎯 Spielkönig <small>Anteil geschlagener Gegner, ab 2 Partien</small></h2><table><tr><th></th><th>Name</th><th class="r">Leistungsquote</th><th class="r">Partien</th></tr>${
