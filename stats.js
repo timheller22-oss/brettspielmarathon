@@ -209,7 +209,28 @@ function compute(S){
   };
   const keys=Object.keys(rub);let added=0;
   for(let i=0;i<keys.length&&added<2;i++){const k=keys[(hour*2+i)%keys.length],t=rub[k]();if(t){news.push({k,t,r:1});added++;}}
-  const nf=pick(spot.filter(x=>x.fact),1,5)[0];if(news.length<5&&nf)news.push({k:"WUSSTEST DU?",t:nf.fact});
+  const FACTS=[
+    "Das Königliche Spiel von Ur ist rund 4.500 Jahre alt. Seine Regeln wurden auf einer babylonischen Keilschrifttafel entziffert.",
+    "Monopoly geht auf „The Landlord's Game“ von Elizabeth Magie zurück. Das sollte 1904 eigentlich vor Monopolen warnen.",
+    "Das Wort „Meeple“ entstand im Jahr 2000 bei einer Partie Carcassonne, als Mischung aus „my“ und „people“.",
+    "Das Spiel des Jahres gibt es seit 1979. Der allererste Gewinner war Hase und Igel.",
+    "Der erste Kennerspiel-des-Jahres-Preis ging 2011 an 7 Wonders.",
+    "In Flügelschlag stecken 170 verschiedene Vogelkarten, jede mit echten Infos zum Vogel.",
+    "Es gibt mehr mögliche Schachpartien als Atome im beobachtbaren Universum.",
+    "Gegenüberliegende Seiten eines normalen Würfels ergeben zusammen immer 7.",
+    "Mensch ärgere Dich nicht wurde um 1907 von Josef Friedrich Schmidt erfunden. Vorbild war das indische Pachisi.",
+    "BoardGameGeek wurde im Jahr 2000 gegründet und ist heute die größte Brettspiel-Datenbank der Welt.",
+    "Die Spielemesse SPIEL in Essen ist die größte Brettspielmesse der Welt, mit fast 200.000 Besuchern.",
+    "Die Gloomhaven-Box wiegt fast 10 Kilo. Damit ist sie eher Möbelstück als Spiel.",
+    "Catan-Erfinder Klaus Teuber war eigentlich Zahntechniker.",
+    "Agricola und Caverna stammen beide von Uwe Rosenberg aus Ostfriesland.",
+    "Azul ist von den portugiesischen Azulejo-Fliesen inspiriert und wurde 2018 Spiel des Jahres.",
+    "Puerto Rico stand jahrelang auf Platz 1 der BoardGameGeek-Rangliste.",
+    "Sky Team, ein Spiel für genau zwei Piloten, wurde 2024 Spiel des Jahres.",
+    "Terra Mystica bietet 14 verschiedene Völker, jedes mit eigener Fähigkeit.",
+    "Trivial Pursuit wurde 1979 von zwei Kanadiern beim Scrabble-Spielen erfunden.",
+    "2016 besiegte die KI AlphaGo den Go-Weltklassespieler Lee Sedol, viele Jahre früher als erwartet."];
+  news.splice(4);news.push({k:"GEEK-FAKT",t:FACTS[((hour%FACTS.length)+FACTS.length)%FACTS.length],g:1});
 
   return {spot,news,ticker,now,plays,running:plays.filter(p=>!p.done),done,people,byPoints,byQuote,medals,awards,tim,stats,next,host};
 }

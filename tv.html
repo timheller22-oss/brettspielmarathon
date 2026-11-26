@@ -211,6 +211,11 @@ tr.first td{background:#fff3bf}
 .snd.on{background:#fff;color:#111;opacity:.35}
 .nb.rub b{background:#00a6ed}
 .nb.rub{background:#f4fbff}
+.nb.geek b{background:#111;color:#fff200}
+.nb.geek{background:#fffbe0}
+.nbubbles.out .nb{animation:none;opacity:0;transform:scale(.6);transition:opacity .3s,transform .3s}
+.nbubbles .nb.bye{align-self:center;font:400 3.4vw/1.1 var(--fd);letter-spacing:.03em;padding:1.4vw 3vw;text-align:center;animation:pop .5s cubic-bezier(.2,1.8,.4,1) forwards;transition:none;margin-left:0}
+.nbubbles .nb.bye small{display:block;font:700 1.6vw var(--fb);letter-spacing:0;margin-top:.4vw}
 /* Stunden-News */
 .news{position:fixed;inset:6.2vw 1.2vw 1.2vw;z-index:20;border:.5vw solid #111;box-shadow:.8vw .8vw 0 #111;background:#ffcc00;overflow:hidden;
  display:flex;flex-direction:column;opacity:0;transform:scale(.6) rotate(-4deg);transition:opacity .35s,transform .55s cubic-bezier(.2,1.6,.4,1)}
@@ -263,8 +268,8 @@ tr.first td{background:#fff3bf}
   <div class="ticker off" id="tickerBox"><b>LIVE</b><div class="tview"><div class="ttrack" id="ticker"></div></div></div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="geek3d.js?v=2"></script>
-<script src="stats.js?v=1795731384"></script>
+<script src="geek3d.js?v=3"></script>
+<script src="stats.js?v=1795733673"></script>
 <script>
 const {esc,fmtClock,fmtDur,fmtDurShort,norm}=BSM;
 const COLS=["#ffd9d9","#fff3bf","#cdeeff","#e5f6c8","#ffe2c7","#f6d8ff"];
@@ -433,13 +438,16 @@ function showNews(force){
   el.innerHTML=`<div class="nrays"></div>
     <div class="nhead"><span class="nburst">NEWS!</span><span class="ntitle">Die Stunden-News · ${String(d.getHours()).padStart(2,"0")}:00 Uhr</span></div>
     <div class="nbody"><div class="nanchor">${use3d?'<div class="anchor3d" id="a3d"></div>':ANCHOR}<div class="nname">Boardgamegeek<small>Ihr Reporter vor Ort</small></div></div>
-      <div class="nbubbles">${C.news.slice(0,5).map((n,i)=>`<div class="nb${n.r?" rub":""}" style="--d:${2.8+i*1.6}s"><b>${esc(n.k)}</b>${esc(n.t)}</div>`).join("")}</div></div>`;
+      <div class="nbubbles">${C.news.slice(0,5).map((n,i)=>`<div class="nb${n.r?" rub":""}${n.g?" geek":""}" style="--d:${2.8+i*1.6}s"><b>${esc(n.k)}</b>${esc(n.t)}</div>`).join("")}</div></div>`;
   el.hidden=false;requestAnimationFrame(()=>el.classList.add("on"));
   talkT.forEach(clearTimeout);talkT=[];
   if(use3d){Geek3D.mount(document.getElementById("a3d"));
     talkT=C.news.slice(0,5).map((n,i)=>setTimeout(()=>Geek3D.say(1300),(2.8+i*1.6)*1000));}
   SND.jingle();setTimeout(()=>{if(!el.hidden)SND.startBed();},2600);
-  clearTimeout(newsTimer);newsTimer=setTimeout(hideNews,force?30000:75000);
+  const dur=force?35000:60000;clearTimeout(newsTimer);
+  talkT.push(setTimeout(()=>{const nb=el.querySelector(".nbubbles");if(!nb||el.hidden)return;nb.classList.add("out");
+    setTimeout(()=>{nb.querySelectorAll(".nb").forEach(x=>x.remove());nb.insertAdjacentHTML("beforeend",`<div class="nb bye">Das war’s! Zurück an die Tische!<small>Wir hören uns in einer Stunde wieder.</small></div>`);window.Geek3D&&Geek3D.say(2200);},350);},dur-7000));
+  newsTimer=setTimeout(hideNews,dur);
 }
 function hideNews(){SND.stopBed();talkT.forEach(clearTimeout);setTimeout(()=>window.Geek3D&&Geek3D.stop(),650);const el=document.getElementById("news");el.classList.remove("on");setTimeout(()=>{el.hidden=true;},600);}
 function medalPanel(){
