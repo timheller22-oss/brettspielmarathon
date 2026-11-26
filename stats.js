@@ -18,7 +18,7 @@ function api(fn,args){
 function loadState(code){return fetch(API+"?api=state&code="+encodeURIComponent(code||"")).then(r=>r.json());}
 
 /* Hauptberechnung */
-/* BGG-Rangliste Strategiespiele (Stand Nov. 2026): Platz, BGG-Durchschnitt, Tims Wertung */
+/* BGG-Gesamtrangliste (Stand Nov. 2026): Platz, BGG-Durchschnitt, Tims Wertung */
 const BGG_TOP={"Arche Nova":[2,8.54,8.5],"Dune Imperium":[6,8.41,null],"Terraforming Mars":[9,8.33,10],"Great Western Trail":[21,8.14,9],
   "7 Wonders Duel":[24,8.07,8],"Ein Fest für Odin":[26,8.16,null],"Sky Team":[32,8.11,null],"Terra Mystica":[36,8.03,null],
   "Flügelschlag":[38,7.99,7],"Puerto Rico":[58,7.90,9],"Caverna":[63,7.92,8]};
@@ -210,7 +210,7 @@ function compute(S){
     RANKING:()=>{const g=focusGame&&bggOf(focusGame);
       const ranked=Object.keys(BGG_TOP).map(bggOf);
       if(g){const lead=runs.length?"Gerade läuft":"Gleich startet";
-        const pos=g.rank<=10?`das ${ORD[g.rank]} Strategiespiel der Welt`:`Platz ${g.rank} der BoardGameGeek-Strategie-Rangliste`;
+        const pos=g.rank<=10?`das ${ORD[g.rank]} Brettspiel der Welt`:`Platz ${g.rank} der BoardGameGeek-Weltrangliste`;
         const t=g.tim!=null&&g.tim>g.avg?` Tim gibt sogar eine ${dez(g.tim)}, die Community nur ${dez(g.avg)}.`:"";
         return `${lead} am ${tisch(g.name)} ${pos}!${t}`;}
       const r=ranked.filter(x=>x.tim!=null)[hour%7]||ranked[0];

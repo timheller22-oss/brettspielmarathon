@@ -288,7 +288,7 @@ tr.first td{background:#fff3bf}
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="geek3d.js?v=3"></script>
-<script src="stats.js?v=1795734544"></script>
+<script src="stats.js?v=1795734610"></script>
 <script>
 const {esc,fmtClock,fmtDur,fmtDurShort,norm}=BSM;
 const COLS=["#ffd9d9","#fff3bf","#cdeeff","#e5f6c8","#ffe2c7","#f6d8ff"];
@@ -296,10 +296,10 @@ let S=null,C=null,idx=0,panels=[],started=false,spotI=Math.floor(Math.random()*5
 
 function coverOf(name){return BSM.coverOf(S,name);}
 function cv(name,cls){const u=coverOf(name);return u?`<img class="cv ${cls||""}" src="${esc(u)}" alt="" referrerpolicy="no-referrer">`:"";}
-function rankB(name){const b=BSM.bggOf(name);return b?`<span class="bggr"><b>#${b.rank}</b>BGG-Strategie</span>`:"";}
+function rankB(name){const b=BSM.bggOf(name);return b?`<span class="bggr"><b>#${b.rank}</b>BGG-Weltrangliste</span>`:"";}
 function top100Panel(){
   const list=Object.keys(BSM.BGG_TOP).map(BSM.bggOf).sort((a,b)=>a.rank-b.rank);
-  return `<h2>🌍 Unsere Top-100-Spiele <small>BGG-Rangliste Strategiespiele</small></h2><div class="top100">${list.map(x=>{
+  return `<h2>🌍 Unsere Top-100-Spiele <small>Platz in der BoardGameGeek-Weltrangliste</small></h2><div class="top100">${list.map(x=>{
     const g=S.games.find(y=>y.name===x.name),sp=(C.spot||[]).find(y=>y.name===x.name),u=(sp&&sp.cover)||coverOf(x.name);
     return `<div class="trow ${g?"day":""}"><div class="trk"><small>#</small>${x.rank}</div>${u?`<img src="${esc(u)}" alt="" referrerpolicy="no-referrer">`:`<div class="noc">${esc(x.name.charAt(0))}</div>`}
       <div class="tnm"><b>${esc(x.name)}</b><small>${g?`Heute um ${esc(g.start)} Uhr`:"Aus Tims Sammlung"}</small></div>
