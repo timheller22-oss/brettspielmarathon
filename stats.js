@@ -18,6 +18,14 @@ function api(fn,args){
 function loadState(code){return fetch(API+"?api=state&code="+encodeURIComponent(code||"")).then(r=>r.json());}
 
 /* Hauptberechnung */
+/* BGG-Rangliste Strategiespiele (Stand Nov. 2026): Platz, BGG-Durchschnitt, Tims Wertung */
+const BGG_TOP={"Arche Nova":[2,8.54,8.5],"Dune Imperium":[6,8.41,null],"Terraforming Mars":[9,8.33,10],"Great Western Trail":[21,8.14,9],
+  "7 Wonders Duel":[24,8.07,8],"Ein Fest für Odin":[26,8.16,null],"Sky Team":[32,8.11,null],"Terra Mystica":[36,8.03,null],
+  "Flügelschlag":[38,7.99,7],"Puerto Rico":[58,7.90,9],"Caverna":[63,7.92,8]};
+function bggOf(name){const b=String(name||"").replace(/\s*\(Tisch \d+\)$/,"");const r=BGG_TOP[b];return r?{name:b,rank:r[0],avg:r[1],tim:r[2]}:null;}
+const ORD=["","beste","zweitbeste","drittbeste","viertbeste","fünftbeste","sechstbeste","siebtbeste","achtbeste","neuntbeste","zehntbeste"];
+const dez=v=>String(v).replace(".",",");
+
 function compute(S){
   const now=nowMin(), host=S.host||"Tim";
   const plays=(S.plays||[]).map(p=>{
@@ -199,6 +207,14 @@ function compute(S){
     HOROSKOP:()=>{const who=pickOne(bookedNext.length?bookedNext:names,2);if(!who)return null;
       const g=next[0]?next[0].name:"der nächsten Partie";
       return `Für ${who} stehen die Sterne gut bei ${g}. Glückszahl: ${(hour*7)%9+1}. Glücksfarbe: ${["Rot","Blau","Grün","Gelb","Lila"][hour%5]}.`;},
+    RANKING:()=>{const g=focusGame&&bggOf(focusGame);
+      const ranked=Object.keys(BGG_TOP).map(bggOf);
+      if(g){const lead=runs.length?"Gerade läuft":"Gleich startet";
+        const pos=g.rank<=10?`das ${ORD[g.rank]} Strategiespiel der Welt`:`Platz ${g.rank} der BoardGameGeek-Strategie-Rangliste`;
+        const t=g.tim!=null&&g.tim>g.avg?` Tim gibt sogar eine ${dez(g.tim)}, die Community nur ${dez(g.avg)}.`:"";
+        return `${lead} am ${tisch(g.name)} ${pos}!${t}`;}
+      const r=ranked.filter(x=>x.tim!=null)[hour%7]||ranked[0];
+      return `${ranked.length} Spiele aus Tims Regal stehen in den BoardGameGeek-Top-100. ${r.name} bekommt von Tim eine ${dez(r.tim)}, die Community gibt ${dez(r.avg)}.`;},
     GERÜCHT:()=>{const a=pickOne(names,3),b=pickOne(names,4),g=focusGame||"Dune Imperium";
       const t=[`Insider berichten von geheimen Allianzen am ${tisch(g)}.`,
         a?`Man munkelt, ${a} hat heimlich die Regeln von ${g} auswendig gelernt.`:null,
@@ -237,5 +253,5 @@ function compute(S){
 
 function coverOf(S,name){if(!S||!name)return "";const base=String(name).replace(/\s*\(Tisch \d+\)$/,"");const g=(S.games||[]).find(x=>x.name===name)||(S.games||[]).find(x=>x.name===base);if(g&&g.cover)return g.cover;const p=(S.plays||[]).slice().reverse().find(x=>(x.game===name||x.game===base)&&x.cover);return p?p.cover:"";}
 
-window.BSM={coverOf,API,toMin,nowMin,fmtClock,fmtDur,fmtDurShort,norm,esc,api,loadState,compute};
+window.BSM={BGG_TOP,bggOf,dez,coverOf,API,toMin,nowMin,fmtClock,fmtDur,fmtDurShort,norm,esc,api,loadState,compute};
 })();

@@ -216,6 +216,25 @@ tr.first td{background:#fff3bf}
 .nbubbles.out .nb{animation:none;opacity:0;transform:scale(.6);transition:opacity .3s,transform .3s}
 .nbubbles .nb.bye{align-self:center;font:400 3.4vw/1.1 var(--fd);letter-spacing:.03em;padding:1.4vw 3vw;text-align:center;animation:pop .5s cubic-bezier(.2,1.8,.4,1) forwards;transition:none;margin-left:0}
 .nbubbles .nb.bye small{display:block;font:700 1.6vw var(--fb);letter-spacing:0;margin-top:.4vw}
+/* BGG-Rang */
+.bggr{display:inline-flex;align-items:center;gap:.5vw;background:#111;color:#fff;font:400 1.3vw/1 var(--fd);letter-spacing:.05em;padding:.35vw .8vw .35vw .35vw;border:.25vw solid #111;transform:rotate(-2deg);align-self:flex-start}
+.bggr b{background:#ffcc00;color:#111;font:400 1.7vw/1 var(--fd);padding:.2vw .5vw}
+.spl .bggr{align-self:stretch;justify-content:center;font-size:1.5vw;padding:.5vw;transform:rotate(-1.5deg);box-shadow:.4vw .4vw 0 #ff3d3d}
+.spl .bggr b{font-size:2.2vw}
+.top100{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:1fr;grid-auto-flow:column;grid-template-rows:repeat(6,1fr);gap:.8vw 2vw}
+.trow{display:grid;grid-template-columns:5vw 4.8vw 1fr auto;align-items:center;gap:1vw;border:.3vw solid #111;background:#fff;padding:.3vw .8vw .3vw .3vw;min-height:0;box-shadow:.35vw .35vw 0 #111}
+.trow.day{background:#fff3bf}
+.trk{font:400 3vw/1 var(--fd);text-align:center;color:#ff3d3d;-webkit-text-stroke:.1vw #111}
+.trk small{font-size:1.4vw;color:#111;-webkit-text-stroke:0}
+.trow img,.trow .noc{width:4.8vw;height:4.8vw;object-fit:contain;background:#fff}
+.trow .noc{display:grid;place-items:center;font:400 2.4vw var(--fd);background:#eee}
+.tnm{min-width:0}
+.tnm b{display:block;font:400 1.9vw/1.05 var(--fd);letter-spacing:.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tnm small{font-size:1.1vw;color:#555}
+.tsc{display:flex;gap:.5vw;font:400 1.5vw/1 var(--fd);letter-spacing:.03em}
+.tsc span{border:.22vw solid #111;padding:.3vw .5vw;text-align:center;min-width:4.4vw;background:#e8f6ff}
+.tsc span.tim{background:#ff3d3d;color:#fff}
+.tsc span small{display:block;font-size:.85vw;letter-spacing:.06em}
 /* Stunden-News */
 .news{position:fixed;inset:6.2vw 1.2vw 1.2vw;z-index:20;border:.5vw solid #111;box-shadow:.8vw .8vw 0 #111;background:#ffcc00;overflow:hidden;
  display:flex;flex-direction:column;opacity:0;transform:scale(.6) rotate(-4deg);transition:opacity .35s,transform .55s cubic-bezier(.2,1.6,.4,1)}
@@ -269,7 +288,7 @@ tr.first td{background:#fff3bf}
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="geek3d.js?v=3"></script>
-<script src="stats.js?v=1795733673"></script>
+<script src="stats.js?v=1795734544"></script>
 <script>
 const {esc,fmtClock,fmtDur,fmtDurShort,norm}=BSM;
 const COLS=["#ffd9d9","#fff3bf","#cdeeff","#e5f6c8","#ffe2c7","#f6d8ff"];
@@ -277,6 +296,15 @@ let S=null,C=null,idx=0,panels=[],started=false,spotI=Math.floor(Math.random()*5
 
 function coverOf(name){return BSM.coverOf(S,name);}
 function cv(name,cls){const u=coverOf(name);return u?`<img class="cv ${cls||""}" src="${esc(u)}" alt="" referrerpolicy="no-referrer">`:"";}
+function rankB(name){const b=BSM.bggOf(name);return b?`<span class="bggr"><b>#${b.rank}</b>BGG-Strategie</span>`:"";}
+function top100Panel(){
+  const list=Object.keys(BSM.BGG_TOP).map(BSM.bggOf).sort((a,b)=>a.rank-b.rank);
+  return `<h2>🌍 Unsere Top-100-Spiele <small>BGG-Rangliste Strategiespiele</small></h2><div class="top100">${list.map(x=>{
+    const g=S.games.find(y=>y.name===x.name),sp=(C.spot||[]).find(y=>y.name===x.name),u=(sp&&sp.cover)||coverOf(x.name);
+    return `<div class="trow ${g?"day":""}"><div class="trk"><small>#</small>${x.rank}</div>${u?`<img src="${esc(u)}" alt="" referrerpolicy="no-referrer">`:`<div class="noc">${esc(x.name.charAt(0))}</div>`}
+      <div class="tnm"><b>${esc(x.name)}</b><small>${g?`Heute um ${esc(g.start)} Uhr`:"Aus Tims Sammlung"}</small></div>
+      <div class="tsc"><span><small>BGG</small>${BSM.dez(x.avg.toFixed(1))}</span>${x.tim!=null?`<span class="tim"><small>TIM</small>${BSM.dez(x.tim)}</span>`:""}</div></div>`;}).join("")}</div>`;
+}
 function emptyP(t){return `<div class="empty">${t}</div>`;}
 
 const BARC=["#ffcc00","#b8c0ca","#d08a52","#00a6ed","#7cc000","#d63af9","#ff7a00","#ff3d3d","#00a6ed"];
@@ -347,7 +375,7 @@ function spotPanel(){
   const fs=txt>720?1.05:txt>600?1.13:txt>480?1.2:1.28;
   return `<h2>🔦 Spiel im Rampenlicht <small>${(spotI%list.length)+1} von ${list.length}</small></h2>
   <div class="spot" style="--fs:${fs}vw">
-    <div class="spl"><div class="spcov">${cover}${rate}</div>${tag}</div>
+    <div class="spl"><div class="spcov">${cover}${rate}</div>${rankB(g.name)}${tag}</div>
     <div class="spr">
       <div class="sptitle" style="--ts:${ts}vw">${esc(g.name)}</div>
       ${g.desc?`<div class="spdesc">${esc(g.desc)}</div>`:"<div></div>"}
@@ -467,7 +495,7 @@ function build(){
   const out=[];
   out.push(()=>!C.running.length?`<h2>▶ Läuft gerade</h2>${emptyP("Gerade läuft keine Partie")}`:`<h2>▶ Läuft gerade</h2><div class="grid" style="grid-template-columns:repeat(${Math.min(3,C.running.length)},1fr)">${
     C.running.map((p,i)=>{const over=p.plan?Math.round(p.dur-p.plan.duration):null;
-      return `<div class="card" style="--c:${COLS[i%6]}"><div class="cvrow">${cv(p.game)}<div><h3>${esc(p.game)}</h3><div class="timer" data-start="${p.s}">${fmtDurShort(p.dur)}</div></div></div>
+      return `<div class="card" style="--c:${COLS[i%6]}"><div class="cvrow">${cv(p.game)}<div><h3>${esc(p.game)}</h3>${rankB(p.game)}<div class="timer" data-start="${p.s}">${fmtDurShort(p.dur)}</div></div></div>
       <div>seit ${esc(p.start)} Uhr${over!=null&&over>0?` · <span style="color:#c00">${over} min über Plan</span>`:p.plan?` · geplant ${p.plan.duration} min`:""}</div>${chips(p.players.map(x=>x.name))}</div>`;}).join("")}</div>`);
   out.push(()=>!C.next.length?`<h2>⏭ Gleich geht's los</h2>${emptyP("Alle geplanten Spiele sind gestartet")}`:`<h2>⏭ Gleich geht's los</h2><div class="grid" style="grid-template-columns:repeat(${C.next.length},1fr)">${
     C.next.map((g,i)=>{const pl=[...(g.host!==false?[S.host]:[]),...S.bookings.filter(b=>b.key===g.name).map(b=>b.name)];
@@ -478,6 +506,7 @@ function build(){
   out.push(()=>awardPanel());
   out.push(()=>timPanel());
   if(C.spot&&C.spot.length){const f=()=>spotPanel();f.spot=true;out.push(f);}
+  out.push(()=>top100Panel());
   const st=C.stats;
   const pages=Math.ceil(st.length/3),per=Math.ceil(st.length/pages);
   for(let i=0;i<st.length;i+=per){const part=st.slice(i,i+per);out.push(()=>statPanel(part,i));}
