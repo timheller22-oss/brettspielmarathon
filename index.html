@@ -137,11 +137,6 @@ button:not(:disabled):active{transform:skew(-6deg) translateY(1px) scale(.97)}
   <div class="status" id="status">Lade Spielplan …</div>
 
   <section id="view-plan"><div class="timeline" id="timeline"></div></section>
-  <section class="lb" id="lb" hidden>
-    <h2 class="lbh">Leaderboard</h2>
-    <div id="lbbody"></div>
-    <a class="lblink" href="./tv.html" target="_blank" rel="noopener">Ganze Rangliste und Statistiken ↗</a>
-  </section>
   <details class="food">
     <summary>Verpflegung: Wer ist wann da?</summary>
     <p class="meta">Gezählt werden Tim, alle Mitspieler und Zuschauer der Spiele, die im Zeitblock starten. Jede Person einmal.</p>
@@ -213,7 +208,7 @@ function render(){
     tl.innerHTML=groups.map(gr=>`<div class="slot"><div class="t mono">${fmt(gr.s)}</div><div class="games">${gr.items.map(g=>card(g,gr.items.length>1,S.games.indexOf(g))).join("")}</div></div>`).join("");
   }
   renderBlocks();
-  renderLB();
+
   document.querySelectorAll("[data-act]").forEach(b=>b.addEventListener("click",()=>{
     const a=b.dataset.act,k=b.dataset.k;
     if(a==="book")call("book",[k,myName,code]);
