@@ -435,16 +435,17 @@ let newsHour=-1,newsTimer=null,talkT=[];
 function showNews(force){
   if(!C||!C.news)return;
   const d=new Date(),el=document.getElementById("news"),use3d=window.Geek3D&&Geek3D.ok();
+  const items=C.news.slice(0,5),dur=force?35000:60000,lastAt=(dur-7000)/1000-12,step=items.length>1?(lastAt-2.8)/(items.length-1):0,at=i=>2.8+i*step;
   el.innerHTML=`<div class="nrays"></div>
     <div class="nhead"><span class="nburst">NEWS!</span><span class="ntitle">Die Stunden-News · ${String(d.getHours()).padStart(2,"0")}:00 Uhr</span></div>
     <div class="nbody"><div class="nanchor">${use3d?'<div class="anchor3d" id="a3d"></div>':ANCHOR}<div class="nname">Boardgamegeek<small>Ihr Reporter vor Ort</small></div></div>
-      <div class="nbubbles">${C.news.slice(0,5).map((n,i)=>`<div class="nb${n.r?" rub":""}${n.g?" geek":""}" style="--d:${2.8+i*1.6}s"><b>${esc(n.k)}</b>${esc(n.t)}</div>`).join("")}</div></div>`;
+      <div class="nbubbles">${items.map((n,i)=>`<div class="nb${n.r?" rub":""}${n.g?" geek":""}" style="--d:${at(i)}s"><b>${esc(n.k)}</b>${esc(n.t)}</div>`).join("")}</div></div>`;
   el.hidden=false;requestAnimationFrame(()=>el.classList.add("on"));
   talkT.forEach(clearTimeout);talkT=[];
   if(use3d){Geek3D.mount(document.getElementById("a3d"));
-    talkT=C.news.slice(0,5).map((n,i)=>setTimeout(()=>Geek3D.say(1300),(2.8+i*1.6)*1000));}
+    talkT=items.map((n,i)=>setTimeout(()=>Geek3D.say(2200),at(i)*1000));}
   SND.jingle();setTimeout(()=>{if(!el.hidden)SND.startBed();},2600);
-  const dur=force?35000:60000;clearTimeout(newsTimer);
+  clearTimeout(newsTimer);
   talkT.push(setTimeout(()=>{const nb=el.querySelector(".nbubbles");if(!nb||el.hidden)return;nb.classList.add("out");
     setTimeout(()=>{nb.querySelectorAll(".nb").forEach(x=>x.remove());nb.insertAdjacentHTML("beforeend",`<div class="nb bye">Das war’s! Zurück an die Tische!<small>Wir hören uns in einer Stunde wieder.</small></div>`);window.Geek3D&&Geek3D.say(2200);},350);},dur-7000));
   newsTimer=setTimeout(hideNews,dur);
