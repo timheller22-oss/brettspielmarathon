@@ -225,15 +225,15 @@ tr.first td{background:#fff3bf}
 @keyframes wob{50%{transform:rotate(-6deg) scale(1.06)}}
 .ntitle{background:#111;color:#fff;font:400 3vw/1 var(--fd);letter-spacing:.04em;padding:.6vw 1.4vw;transform:skew(-8deg)}
 .nbody{flex:1;min-height:0;display:grid;grid-template-columns:26vw 1fr;gap:1vw;padding:0 2vw 1.6vw}
-.nanchor{display:flex;flex-direction:column;align-items:center;justify-content:flex-end}
+.nanchor{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-height:0;padding-bottom:.4vw}
 .anchor{width:21vw;height:auto;filter:drop-shadow(.5vw .5vw 0 #111);animation:bob 1.4s ease-in-out infinite}
 .anchor .body{fill:#00a6ed;stroke:#111;stroke-width:5;stroke-linejoin:round}
-.anchor3d{width:26vw;height:31vw;flex:none}
+.anchor3d{width:26vw;flex:1 1 0;min-height:0}
 @keyframes bob{50%{transform:translateY(-.8vw) rotate(-2deg)}}
 .nname{background:#fff;border:.35vw solid #111;padding:.3vw 1.2vw;font:400 2vw/1 var(--fd);letter-spacing:.04em;text-align:center;margin-top:.6vw}
 .nname small{display:block;font:700 1vw var(--fb);letter-spacing:0}
-.nbubbles{display:flex;flex-direction:column;justify-content:center;gap:1vw}
-.nb{position:relative;background:#fff;border:.4vw solid #111;border-radius:3vw;padding:.9vw 1.6vw;font-size:1.9vw;line-height:1.2;box-shadow:.5vw .5vw 0 #111;
+.nbubbles{display:flex;flex-direction:column;justify-content:center;gap:.8vw;min-height:0}
+.nb{position:relative;background:#fff;border:.4vw solid #111;border-radius:3vw;padding:.7vw 1.5vw;font-size:1.7vw;line-height:1.2;box-shadow:.5vw .5vw 0 #111;
  opacity:0;transform:scale(.3) rotate(-6deg);transform-origin:left center;animation:pop .5s cubic-bezier(.2,1.8,.4,1) var(--d) forwards}
 .nb:nth-child(even){margin-left:3vw;animation-name:pop2}
 .nb::before{content:"";position:absolute;left:-2.2vw;top:50%;width:2.4vw;height:2vw;margin-top:-1vw;background:#111;clip-path:polygon(100% 0,0 60%,100% 100%)}
@@ -263,7 +263,7 @@ tr.first td{background:#fff3bf}
   <div class="ticker off" id="tickerBox"><b>LIVE</b><div class="tview"><div class="ttrack" id="ticker"></div></div></div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="geek3d.js?v=1"></script>
+<script src="geek3d.js?v=2"></script>
 <script src="stats.js?v=1795731384"></script>
 <script>
 const {esc,fmtClock,fmtDur,fmtDurShort,norm}=BSM;
