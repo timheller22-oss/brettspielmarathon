@@ -163,17 +163,53 @@ function compute(S){
   pick(spot.filter(x=>x.fact),3).forEach(x=>ticker.push(`Wusstest du? ${x.fact}`));
   if(!ticker.length)ticker.push("Willkommen zum Brettspielmarathon","Heute wird 18 Stunden gespielt");
 
-  // Stunden-News für den Comic-Sprecher
+  // Stunden-News für den Comic-Sprecher: bis zu 3 Meldungen + 2 wechselnde Rubriken
   const news=[];
   if(byPoints[0])news.push({k:"SPITZE",t:`${byPoints[0].name} führt die Rangliste an!`});
   const last=done.slice().sort((a,b)=>b.e-a.e)[0];
-  if(last){const w=last.team?last.players.filter(x=>x.win).map(x=>x.name).join(" & "):(last.players.find(x=>x.place===1)||{}).name;if(w)news.push({k:"SIEG",t:`${w} schnappt sich ${last.game}!`});}
+  const lastOrder=last?(last.team?[...last.players.filter(x=>x.win),...last.players.filter(x=>!x.win)]:last.players.slice().sort((a,b)=>(a.place||99)-(b.place||99))):[];
+  const lastWin=last?(last.team?last.players.filter(x=>x.win).map(x=>x.name).join(" & "):(lastOrder[0]||{}).name):"";
+  if(lastWin)news.push({k:"SIEG",t:`${lastWin} schnappt sich ${last.game}!`});
   const runs=plays.filter(p=>!p.done);
   if(runs.length)news.push({k:"LIVE",t:runs.length===1?`Gerade läuft ${runs[0].game}.`:`Gerade laufen ${runs.map(p=>p.game).join(" und ")}.`});
-  if(next[0])news.push({k:"GLEICH",t:`Um ${next[0].start} Uhr startet ${next.map(g=>g.name).join(" und ")}!`});
-  if(tim.delay!=null)news.push({k:"ZEITPLAN",t:Math.abs(tim.delay)<=5?"Wir liegen voll im Zeitplan!":tim.delay>0?`${tim.delay} Minuten Verspätung. Tempo, Leute!`:`${-tim.delay} Minuten Vorsprung auf den Plan!`});
-  const nf=pick(spot.filter(x=>x.fact),1,5)[0];if(nf)news.push({k:"WUSSTEST DU?",t:nf.fact});
-  if(news.length<3)news.unshift({k:"HALLO",t:"Willkommen zu Tims Brettspielmarathon!"});
+  else if(next[0])news.push({k:"GLEICH",t:`Um ${next[0].start} Uhr startet ${next.map(g=>g.name).join(" und ")}!`});
+  if(news.length<2&&tim.delay!=null)news.push({k:"ZEITPLAN",t:Math.abs(tim.delay)<=5?"Wir liegen voll im Zeitplan!":tim.delay>0?`${tim.delay} Minuten Verspätung. Tempo, Leute!`:`${-tim.delay} Minuten Vorsprung auf den Plan!`});
+  if(!news.length)news.push({k:"HALLO",t:"Willkommen zu Tims Brettspielmarathon! Gleich geht's los."});
+
+  const hour=Math.floor(now/60), names=people.map(x=>x.name).filter(n=>norm(n)!==norm(host));
+  const pickOne=(arr,o)=>arr.length?arr[(hour*5+(o||0))%arr.length]:null;
+  const focus=runs[0]||(next[0]?{game:next[0].name,plan:next[0]}:null);
+  const tisch=g=>String(g).replace(/\s+/g,"-")+"-Tisch";
+  const focusGame=focus?focus.game:null, focusW=focus&&focus.plan?focus.plan.weight:null;
+  const bookedNext=next[0]?(S.bookings||[]).filter(b=>b.key===next[0].name).map(b=>b.name):[];
+  const rub={
+    WETTER:()=>{if(!focusGame)return null;
+      const w=focusW==null?2.5:focusW;
+      const f=w>=3.5?"schwere Gewitter aus Grübelfalten, die Konzentration erreicht Rekordwerte":w>=2.8?"dichte Denkwolken, gelegentlich Schauer aus Ressourcen":w>=2?"wechselhaft mit sonnigen Abschnitten und kurzen Taktik-Böen":"strahlender Sonnenschein, beste Laune und viel Gelächter";
+      const who=pickOne(names,1);
+      return `Spielwetter am ${tisch(focusGame)}: ${f}.`+(who?` Für ${who} besteht leichte Pechgefahr.`:"");},
+    BÖRSE:()=>{if(!last||!lastOrder.length)return null;
+      const up=lastOrder[0],down=lastOrder[lastOrder.length-1];if(!up||!down||up===down)return null;
+      const pu=P[norm(up.name)],gain=last.team?last.players.filter(x=>!x.win).length:last.players.length-1;
+      const pct=pu&&pu.points>gain?Math.round(gain/(pu.points-gain)*100):100;
+      return `Börsenticker: Die ${up.name}-Aktie steigt um ${Math.min(pct,250)} Prozent! ${down.name} gibt nach dem letzten Platz leicht nach.`;},
+    SPORT:()=>{if(!last||!lastWin)return null;
+      const second=last.team?null:(lastOrder[1]||{}).name, over=last.plan?Math.round(last.dur-last.plan.duration):0;
+      return `Was für ein Finale bei ${last.game}! ${lastWin} setzt sich durch`+(second?`, ${second} kämpft bis zur letzten Sekunde`:"")+(over>10?`, und das nach ${over} Minuten Nachspielzeit`:"")+"!";},
+    HOROSKOP:()=>{const who=pickOne(bookedNext.length?bookedNext:names,2);if(!who)return null;
+      const g=next[0]?next[0].name:"der nächsten Partie";
+      return `Für ${who} stehen die Sterne gut bei ${g}. Glückszahl: ${(hour*7)%9+1}. Glücksfarbe: ${["Rot","Blau","Grün","Gelb","Lila"][hour%5]}.`;},
+    GERÜCHT:()=>{const a=pickOne(names,3),b=pickOne(names,4),g=focusGame||"Dune Imperium";
+      const t=[`Insider berichten von geheimen Allianzen am ${tisch(g)}.`,
+        a?`Man munkelt, ${a} hat heimlich die Regeln von ${g} auswendig gelernt.`:null,
+        a&&b&&a!==b?`Gerüchten zufolge haben ${a} und ${b} einen Nichtangriffspakt geschlossen.`:null,
+        `Unbestätigten Quellen zufolge plant Marlene schon die nächste Snack-Offensive.`,
+        `Aus Tims Umfeld heißt es: Er gibt sich siegessicher, wirkt aber nervös.`].filter(Boolean);
+      return t[hour%t.length];}
+  };
+  const keys=Object.keys(rub);let added=0;
+  for(let i=0;i<keys.length&&added<2;i++){const k=keys[(hour*2+i)%keys.length],t=rub[k]();if(t){news.push({k,t,r:1});added++;}}
+  const nf=pick(spot.filter(x=>x.fact),1,5)[0];if(news.length<5&&nf)news.push({k:"WUSSTEST DU?",t:nf.fact});
 
   return {spot,news,ticker,now,plays,running:plays.filter(p=>!p.done),done,people,byPoints,byQuote,medals,awards,tim,stats,next,host};
 }
