@@ -128,15 +128,54 @@ function compute(S){
   const upcoming=games.filter(g=>!startedNames.has(g.name)&&g.e>now).sort((a,b)=>a.s-b.s);
   const next=upcoming.length?upcoming.filter(g=>g.s===upcoming[0].s):[];
 
-  const ticker=[];
-  done.slice().sort((a,b)=>b.e-a.e).slice(0,8).forEach(p=>{
-    if(p.team){const w=p.players.filter(x=>x.win).map(x=>x.name);if(w.length)ticker.push(`${w.join(" & ")} ${w.length>1?"gewinnen":"gewinnt"} ${p.game}`);}
-    else{const r=p.players.slice().sort((a,b)=>(a.place||99)-(b.place||99));if(r[0])ticker.push(`${r[0].name} gewinnt ${p.game}`+(r[1]?` vor ${r[1].name}`:""));}});
-  plays.filter(p=>!p.done).forEach(p=>ticker.unshift(`${p.game} läuft seit ${p.start} Uhr`));
-  if(next.length)ticker.push(`Gleich geht's los: ${next.map(g=>g.name).join(" und ")} um ${next[0].start} Uhr`);
-  if(!done.length&&!plays.length)ticker.push("Willkommen zum Brettspielmarathon","Heute wird 18 Stunden gespielt");
+  // Spiele im Rampenlicht (Spielinfos + Daten aus dem Spielplan)
+  const spot=(S.infos||[]).map(i=>{const g=games.find(x=>x.name===i.name)||{};
+    return {...i,desc:i.desc||g.desc||"",cover:i.cover||g.cover||"",rating:g.rating??null,weight:g.weight??null,start:g.start||"",plan:!!g.name};});
 
-  return {ticker,now,plays,running:plays.filter(p=>!p.done),done,people,byPoints,byQuote,medals,awards,tim,stats,next,host};
+  // Ordinal der Siege pro Person (für Meldungen wie „3. Sieg“)
+  const winNo={},cnt={};
+  done.slice().sort((a,b)=>a.e-b.e).forEach(p=>{const w=p.team?p.players.filter(x=>x.win):p.players.filter(x=>x.place===1);
+    w.forEach(x=>{const k=norm(x.name);cnt[k]=(cnt[k]||0)+1;winNo[p.id+"|"+k]=cnt[k];});});
+  const ord=n=>n+".";
+  const seed=Math.floor(now/20);  // wechselt alle 20 Minuten
+  const pick=(arr,n,off)=>{if(!arr.length)return[];const out=[];for(let i=0;i<Math.min(n,arr.length);i++)out.push(arr[(seed*7+i*3+(off||0))%arr.length]);return [...new Set(out)];};
+
+  const ticker=[];
+  // Live
+  plays.filter(p=>!p.done).forEach(p=>ticker.push(p.dur>=60?`${p.game} läuft schon seit ${fmtDur(p.dur)}`:`${p.game} läuft seit ${p.start} Uhr`));
+  // Ergebnisse
+  done.slice().sort((a,b)=>b.e-a.e).slice(0,5).forEach(p=>{
+    if(p.team){const w=p.players.filter(x=>x.win).map(x=>x.name);if(w.length)ticker.push(`${w.join(" & ")} ${w.length>1?"gewinnen":"gewinnt"} ${p.game}`);}
+    else{const r=p.players.slice().sort((a,b)=>(a.place||99)-(b.place||99));if(r[0]){const n=winNo[p.id+"|"+norm(r[0].name)];
+      ticker.push(`${r[0].name} gewinnt ${p.game}`+(r[1]?` vor ${r[1].name}`:"")+(n>1?` und holt den ${ord(n)} Sieg des Tages`:""));}}});
+  // Rekorde und Serien
+  if(medals[0])ticker.push(`Im Medaillenspiegel führt ${medals[0].name} mit ${medals[0].gold}× Gold`);
+  if(byPoints[0]&&byPoints[1])ticker.push(`${byPoints[0].name} hat ${byPoints[0].points-byPoints[1].points} Punkte Vorsprung auf ${byPoints[1].name}`);
+  const streaker=people.filter(x=>x.streak>=2).sort((a,b)=>b.streak-a.streak)[0];
+  if(streaker)ticker.push(`${streaker.name} ist heiß: ${streaker.streak} Siege in Folge`);
+  if(done.length){const l=done.slice().sort((a,b)=>b.dur-a.dur)[0];ticker.push(`Längste Partie bisher: ${l.game} mit ${fmtDur(l.dur)}`);}
+  if(totalTime>0)ticker.push(`Gemeinsam schon ${fmtDurShort(totalTime)} Stunden gespielt`);
+  if(tim.delay!=null&&Math.abs(tim.delay)>5)ticker.push(tim.delay>0?`Der Zeitplan hinkt ${tim.delay} Minuten hinterher`:`Ihr seid ${-tim.delay} Minuten vor dem Zeitplan`);
+  // Vorschau mit freien Plätzen
+  upcoming.slice(0,3).forEach(g=>{const booked=(S.bookings||[]).filter(b=>b.key===g.name).length,free=g.seats-(g.host!==false?1:0)-booked;
+    ticker.push(free>0?`${g.name} um ${g.start} Uhr: noch ${free} ${free===1?"Platz":"Plätze"} frei`:`${g.name} um ${g.start} Uhr ist ausgebucht`);});
+  // Wusstest du?
+  pick(spot.filter(x=>x.fact),3).forEach(x=>ticker.push(`Wusstest du? ${x.fact}`));
+  if(!ticker.length)ticker.push("Willkommen zum Brettspielmarathon","Heute wird 18 Stunden gespielt");
+
+  // Stunden-News für den Comic-Sprecher
+  const news=[];
+  if(byPoints[0])news.push({k:"SPITZE",t:`${byPoints[0].name} führt die Rangliste an!`});
+  const last=done.slice().sort((a,b)=>b.e-a.e)[0];
+  if(last){const w=last.team?last.players.filter(x=>x.win).map(x=>x.name).join(" & "):(last.players.find(x=>x.place===1)||{}).name;if(w)news.push({k:"SIEG",t:`${w} schnappt sich ${last.game}!`});}
+  const runs=plays.filter(p=>!p.done);
+  if(runs.length)news.push({k:"LIVE",t:runs.length===1?`Gerade läuft ${runs[0].game}.`:`Gerade laufen ${runs.map(p=>p.game).join(" und ")}.`});
+  if(next[0])news.push({k:"GLEICH",t:`Um ${next[0].start} Uhr startet ${next.map(g=>g.name).join(" und ")}!`});
+  if(tim.delay!=null)news.push({k:"ZEITPLAN",t:Math.abs(tim.delay)<=5?"Wir liegen voll im Zeitplan!":tim.delay>0?`${tim.delay} Minuten Verspätung. Tempo, Leute!`:`${-tim.delay} Minuten Vorsprung auf den Plan!`});
+  const nf=pick(spot.filter(x=>x.fact),1,5)[0];if(nf)news.push({k:"WUSSTEST DU?",t:nf.fact});
+  if(news.length<3)news.unshift({k:"HALLO",t:"Willkommen zu Tims Brettspielmarathon!"});
+
+  return {spot,news,ticker,now,plays,running:plays.filter(p=>!p.done),done,people,byPoints,byQuote,medals,awards,tim,stats,next,host};
 }
 
 function coverOf(S,name){if(!S||!name)return "";const base=String(name).replace(/\s*\(Tisch \d+\)$/,"");const g=(S.games||[]).find(x=>x.name===name)||(S.games||[]).find(x=>x.name===base);if(g&&g.cover)return g.cover;const p=(S.plays||[]).slice().reverse().find(x=>(x.game===name||x.game===base)&&x.cover);return p?p.cover:"";}
