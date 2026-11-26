@@ -221,20 +221,19 @@ tr.first td{background:#fff3bf}
 .bggr b{background:#ffcc00;color:#111;font:400 1.7vw/1 var(--fd);padding:.2vw .5vw}
 .spl .bggr{align-self:stretch;justify-content:center;font-size:1.5vw;padding:.5vw;transform:rotate(-1.5deg);box-shadow:.4vw .4vw 0 #ff3d3d}
 .spl .bggr b{font-size:2.2vw}
-.top100{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:1fr;grid-auto-flow:column;grid-template-rows:repeat(9,1fr);gap:.5vw 2vw}
-.trow{display:grid;grid-template-columns:5vw 3.2vw 1fr auto;align-items:center;gap:1vw;border:.3vw solid #111;background:#fff;padding:.3vw .8vw .3vw .3vw;min-height:0;box-shadow:.35vw .35vw 0 #111}
+.top100{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;grid-auto-flow:column;grid-template-rows:repeat(8,minmax(0,1fr));gap:.6vw 2vw}
+.trow{container-type:size;min-height:0;border:.3vw solid #111;background:#fff;box-shadow:.35vw .35vw 0 #111;overflow:hidden}
 .trow.day{background:#fff3bf}
-.trk{font:400 2.3vw/1 var(--fd);text-align:center;color:#ff3d3d;-webkit-text-stroke:.1vw #111}
-.trk small{font-size:1.4vw;color:#111;-webkit-text-stroke:0}
-.trow img,.trow .noc{width:3.2vw;height:3.2vw;object-fit:contain;background:#fff}
-.trow .noc{display:grid;place-items:center;font:400 2.4vw var(--fd);background:#eee}
+.trin{height:100%;display:grid;grid-template-columns:auto auto 1fr auto;align-items:center;gap:0 3cqh;padding:6cqh 4cqh 6cqh 2cqh}
+.trk{min-width:2.6em;font:400 60cqh/1 var(--fd);text-align:center;color:#ff3d3d;-webkit-text-stroke:.03em #111}
+.trk small{font-size:.55em;color:#111;-webkit-text-stroke:0}
+.trin img,.trin .noc{height:84cqh;width:84cqh;object-fit:contain;display:block}
+.trin .noc{display:grid;place-items:center;font:400 50cqh var(--fd);background:#eee}
 .tnm{min-width:0}
-.tnm b{display:block;font:400 1.7vw/1.05 var(--fd);letter-spacing:.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tnm small{display:block;font-size:1vw;line-height:1.15;color:#555}
-.tsc{display:flex;gap:.5vw;font:400 1.5vw/1 var(--fd);letter-spacing:.03em}
-.tsc span{border:.22vw solid #111;padding:.15vw .5vw;text-align:center;min-width:4.4vw;background:#e8f6ff}
-.tsc span.tim{background:#ff3d3d;color:#fff}
-.tsc span small{display:block;font-size:.85vw;letter-spacing:.06em}
+.tnm b{display:block;font:400 42cqh/1.05 var(--fd);letter-spacing:.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tnm small{display:block;font-size:23cqh;line-height:1.2;color:#555;white-space:nowrap}
+.tsc{border:.22vw solid #111;padding:4cqh 10cqh;text-align:center;background:#e8f6ff;font:400 38cqh/1 var(--fd);letter-spacing:.03em}
+.tsc small{display:block;font-size:.5em;letter-spacing:.06em}
 /* Stunden-News */
 .news{position:fixed;inset:6.2vw 1.2vw 1.2vw;z-index:20;border:.5vw solid #111;box-shadow:.8vw .8vw 0 #111;background:#ffcc00;overflow:hidden;
  display:flex;flex-direction:column;opacity:0;transform:scale(.6) rotate(-4deg);transition:opacity .35s,transform .55s cubic-bezier(.2,1.6,.4,1)}
@@ -288,7 +287,7 @@ tr.first td{background:#fff3bf}
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="geek3d.js?v=3"></script>
-<script src="stats.js?v=1795734690"></script>
+<script src="stats.js?v=1795734810"></script>
 <script>
 const {esc,fmtClock,fmtDur,fmtDurShort,norm}=BSM;
 const COLS=["#ffd9d9","#fff3bf","#cdeeff","#e5f6c8","#ffe2c7","#f6d8ff"];
@@ -299,11 +298,11 @@ function cv(name,cls){const u=coverOf(name);return u?`<img class="cv ${cls||""}"
 function rankB(name){const b=BSM.bggOf(name);return b?`<span class="bggr"><b>#${b.rank}</b>BGG-Weltrangliste</span>`:"";}
 function top100Panel(){
   const list=Object.keys(BSM.BGG_TOP).map(BSM.bggOf).sort((a,b)=>a.rank-b.rank);
-  return `<h2>🌍 Unsere Top-300-Spiele <small>Platz in der BoardGameGeek-Weltrangliste</small></h2><div class="top100">${list.map(x=>{
+  return `<h2>🌍 Unsere Top-200-Spiele <small>Platz in der BoardGameGeek-Weltrangliste</small></h2><div class="top100">${list.map(x=>{
     const g=S.games.find(y=>y.name===x.name),sp=(C.spot||[]).find(y=>y.name===x.name),u=(sp&&sp.cover)||coverOf(x.name);
-    return `<div class="trow ${g?"day":""}"><div class="trk"><small>#</small>${x.rank}</div>${u?`<img src="${esc(u)}" alt="" referrerpolicy="no-referrer">`:`<div class="noc">${esc(x.name.charAt(0))}</div>`}
+    return `<div class="trow ${g?"day":""}"><div class="trin"><div class="trk"><small>#</small>${x.rank}</div>${u?`<img src="${esc(u)}" alt="" referrerpolicy="no-referrer">`:`<div class="noc">${esc(x.name.charAt(0))}</div>`}
       <div class="tnm"><b>${esc(x.name)}</b><small>${g?`Heute um ${esc(g.start)} Uhr`:"Aus Tims Sammlung"}</small></div>
-      <div class="tsc"><span><small>BGG</small>${BSM.dez(x.avg.toFixed(1))}</span>${x.tim!=null?`<span class="tim"><small>TIM</small>${BSM.dez(x.tim)}</span>`:""}</div></div>`;}).join("")}</div>`;
+      <div class="tsc"><small>BGG</small>${BSM.dez(x.avg.toFixed(1))}</div></div></div>`;}).join("")}</div>`;
 }
 function emptyP(t){return `<div class="empty">${t}</div>`;}
 

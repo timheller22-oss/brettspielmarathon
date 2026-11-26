@@ -18,13 +18,12 @@ function api(fn,args){
 function loadState(code){return fetch(API+"?api=state&code="+encodeURIComponent(code||"")).then(r=>r.json());}
 
 /* Hauptberechnung */
-/* BGG-Gesamtrangliste (Stand Nov. 2026): Platz, BGG-Durchschnitt, Tims Wertung */
-const BGG_TOP={"Arche Nova":[2,8.54,8.5],"Dune Imperium":[6,8.41,null],"Terraforming Mars":[9,8.33,10],"Great Western Trail":[21,8.14,9],
-  "7 Wonders Duel":[24,8.07,8],"Ein Fest für Odin":[26,8.16,null],"Sky Team":[32,8.11,null],"Terra Mystica":[36,8.03,null],
-  "Flügelschlag":[38,7.99,7],"Puerto Rico":[58,7.90,9],"Caverna":[63,7.92,8],
-  "Azul":[101,7.71,null],"Mombasa":[148,7.83,7.5],"Mischwald":[150,7.73,null],"Der Kartograph":[186,7.54,null],
-  "Captain Sonar":[250,7.49,null],"Fantastische Reiche":[273,7.50,null],"Skull King":[286,7.53,null]};
-function bggOf(name){const b=String(name||"").replace(/\s*\(Tisch \d+\)$/,"");const r=BGG_TOP[b];return r?{name:b,rank:r[0],avg:r[1],tim:r[2]}:null;}
+/* BGG-Gesamtrangliste (Stand Nov. 2026): Platz, BGG-Durchschnitt */
+const BGG_TOP={"Arche Nova":[2,8.54],"Dune Imperium":[6,8.41],"Terraforming Mars":[9,8.33],"Great Western Trail":[21,8.14],
+  "7 Wonders Duel":[24,8.07],"Ein Fest für Odin":[26,8.16],"Sky Team":[32,8.11],"Terra Mystica":[36,8.03],
+  "Flügelschlag":[38,7.99],"Puerto Rico":[58,7.90],"Caverna":[63,7.92],
+  "Azul":[101,7.71],"Mombasa":[148,7.83],"Mischwald":[150,7.73],"Der Kartograph":[186,7.54]};
+function bggOf(name){const b=String(name||"").replace(/\s*\(Tisch \d+\)$/,"");const r=BGG_TOP[b];return r?{name:b,rank:r[0],avg:r[1]}:null;}
 const ORD=["","beste","zweitbeste","drittbeste","viertbeste","fünftbeste","sechstbeste","siebtbeste","achtbeste","neuntbeste","zehntbeste"];
 const dez=v=>String(v).replace(".",",");
 
@@ -213,10 +212,9 @@ function compute(S){
       const ranked=Object.keys(BGG_TOP).map(bggOf);
       if(g){const lead=runs.length?"Gerade läuft":"Gleich startet";
         const pos=g.rank<=10?`das ${ORD[g.rank]} Brettspiel der Welt`:`Platz ${g.rank} der BoardGameGeek-Weltrangliste`;
-        const t=g.tim!=null&&g.tim>g.avg?` Tim gibt sogar eine ${dez(g.tim)}, die Community nur ${dez(g.avg)}.`:"";
-        return `${lead} am ${tisch(g.name)} ${pos}!${t}`;}
-      const rt=ranked.filter(x=>x.tim!=null),r=rt[((hour%rt.length)+rt.length)%rt.length];
-      return `${ranked.length} Spiele aus Tims Regal stehen in den BoardGameGeek-Top-300. ${r.name} bekommt von Tim eine ${dez(r.tim)}, die Community gibt ${dez(r.avg)}.`;},
+        return `${lead} am ${tisch(g.name)} ${pos}! Die Community gibt im Schnitt ${dez(g.avg.toFixed(1))}.`;}
+      const r=ranked[((hour%ranked.length)+ranked.length)%ranked.length];
+      return `${ranked.length} Spiele aus Tims Regal stehen in den BoardGameGeek-Top-200. Heute im Blick: ${r.name} auf Platz ${r.rank}.`;},
     GERÜCHT:()=>{const a=pickOne(names,3),b=pickOne(names,4),g=focusGame||"Dune Imperium";
       const t=[`Insider berichten von geheimen Allianzen am ${tisch(g)}.`,
         a?`Man munkelt, ${a} hat heimlich die Regeln von ${g} auswendig gelernt.`:null,
