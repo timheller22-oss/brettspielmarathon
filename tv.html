@@ -224,10 +224,11 @@ tr.first td{background:#fff3bf}
  clip-path:polygon(50% 0,61% 22%,88% 8%,80% 34%,100% 44%,80% 58%,94% 86%,66% 76%,52% 100%,40% 78%,12% 92%,20% 62%,0 50%,20% 36%,8% 10%,36% 22%);animation:wob 1.2s ease-in-out infinite}
 @keyframes wob{50%{transform:rotate(-6deg) scale(1.06)}}
 .ntitle{background:#111;color:#fff;font:400 3vw/1 var(--fd);letter-spacing:.04em;padding:.6vw 1.4vw;transform:skew(-8deg)}
-.nbody{flex:1;min-height:0;display:grid;grid-template-columns:24vw 1fr;gap:1vw;padding:0 2vw 1.6vw}
+.nbody{flex:1;min-height:0;display:grid;grid-template-columns:26vw 1fr;gap:1vw;padding:0 2vw 1.6vw}
 .nanchor{display:flex;flex-direction:column;align-items:center;justify-content:flex-end}
 .anchor{width:21vw;height:auto;filter:drop-shadow(.5vw .5vw 0 #111);animation:bob 1.4s ease-in-out infinite}
 .anchor .body{fill:#00a6ed;stroke:#111;stroke-width:5;stroke-linejoin:round}
+.anchor3d{width:26vw;height:31vw;flex:none}
 @keyframes bob{50%{transform:translateY(-.8vw) rotate(-2deg)}}
 .nname{background:#fff;border:.35vw solid #111;padding:.3vw 1.2vw;font:400 2vw/1 var(--fd);letter-spacing:.04em;text-align:center;margin-top:.6vw}
 .nname small{display:block;font:700 1vw var(--fb);letter-spacing:0}
@@ -261,6 +262,8 @@ tr.first td{background:#fff3bf}
   <div class="dots" id="dots"></div>
   <div class="ticker off" id="tickerBox"><b>LIVE</b><div class="tview"><div class="ttrack" id="ticker"></div></div></div>
 </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="geek3d.js?v=1"></script>
 <script src="stats.js?v=1795731384"></script>
 <script>
 const {esc,fmtClock,fmtDur,fmtDurShort,norm}=BSM;
@@ -423,19 +426,22 @@ const ANCHOR=`<svg class="anchor" viewBox="0 0 200 240" aria-hidden="true">
   <path d="M92 80l8 8 8-8-4 46h-8z" fill="#ff3d3d" stroke="#111" stroke-width="3.5" stroke-linejoin="round"/>
   <g class="mic"><rect x="150" y="100" width="12" height="44" rx="4" fill="#555" stroke="#111" stroke-width="3.5"/><circle cx="156" cy="94" r="13" fill="#333" stroke="#111" stroke-width="3.5"/><path d="M147 90h18M146 97h20" stroke="#777" stroke-width="2"/></g>
 </svg>`;
-let newsHour=-1,newsTimer=null;
+let newsHour=-1,newsTimer=null,talkT=[];
 function showNews(force){
   if(!C||!C.news)return;
-  const d=new Date(),el=document.getElementById("news");
+  const d=new Date(),el=document.getElementById("news"),use3d=window.Geek3D&&Geek3D.ok();
   el.innerHTML=`<div class="nrays"></div>
     <div class="nhead"><span class="nburst">NEWS!</span><span class="ntitle">Die Stunden-News · ${String(d.getHours()).padStart(2,"0")}:00 Uhr</span></div>
-    <div class="nbody"><div class="nanchor">${ANCHOR}<div class="nname">Meeple-Max<small>Ihr Reporter vor Ort</small></div></div>
+    <div class="nbody"><div class="nanchor">${use3d?'<div class="anchor3d" id="a3d"></div>':ANCHOR}<div class="nname">Boardgamegeek<small>Ihr Reporter vor Ort</small></div></div>
       <div class="nbubbles">${C.news.slice(0,5).map((n,i)=>`<div class="nb${n.r?" rub":""}" style="--d:${2.8+i*1.6}s"><b>${esc(n.k)}</b>${esc(n.t)}</div>`).join("")}</div></div>`;
   el.hidden=false;requestAnimationFrame(()=>el.classList.add("on"));
+  talkT.forEach(clearTimeout);talkT=[];
+  if(use3d){Geek3D.mount(document.getElementById("a3d"));
+    talkT=C.news.slice(0,5).map((n,i)=>setTimeout(()=>Geek3D.say(1300),(2.8+i*1.6)*1000));}
   SND.jingle();setTimeout(()=>{if(!el.hidden)SND.startBed();},2600);
   clearTimeout(newsTimer);newsTimer=setTimeout(hideNews,force?30000:75000);
 }
-function hideNews(){SND.stopBed();const el=document.getElementById("news");el.classList.remove("on");setTimeout(()=>{el.hidden=true;},600);}
+function hideNews(){SND.stopBed();talkT.forEach(clearTimeout);setTimeout(()=>window.Geek3D&&Geek3D.stop(),650);const el=document.getElementById("news");el.classList.remove("on");setTimeout(()=>{el.hidden=true;},600);}
 function medalPanel(){
   const m=C.medals,top=m.slice(0,3),rest=m.slice(0,10);
   const cnt=x=>`<div class="cnt"><span><i class="md"></i>${x.gold}</span><span><i class="md s"></i>${x.silver}</span><span><i class="md b"></i>${x.bronze}</span></div>`;
