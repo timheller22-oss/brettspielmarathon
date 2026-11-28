@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light only">
 <title>Leaderboard · Tims Brettspielmarathon</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@400;700&family=Cormorant+Garamond:wght@500;600&family=Outfit:wght@300;400;500&family=Fraunces:opsz,wght@9..144,400;9..144,600&display=swap">
 <style>
 :root{color-scheme:light only;--ink:#111;--red:#ff3d3d;--yel:#ffcc00;--blue:#00a6ed;--green:#7cc000;--orange:#ff7a00;--lila:#d63af9;
  --fd:"Bangers",Impact,sans-serif;--fb:"Comic Neue",system-ui,sans-serif}
@@ -234,6 +234,51 @@ tr.first td{background:#fff3bf}
 .tnm small{display:block;font-size:23cqh;line-height:1.2;color:#555;white-space:nowrap}
 .tsc{border:.22vw solid #111;padding:4cqh 10cqh;text-align:center;background:#e8f6ff;font:400 38cqh/1 var(--fd);letter-spacing:.03em}
 .tsc small{display:block;font-size:.5em;letter-spacing:.06em}
+/* Werbepause */
+.ads{position:fixed;inset:0;z-index:30;background:#111;opacity:0;transition:opacity .4s;overflow:hidden}
+.ads.on{opacity:1}
+.adtag{position:absolute;top:1.4vw;left:1.6vw;z-index:5;font:400 1.3vw/1 var(--fd);letter-spacing:.12em;color:#fff;background:rgba(0,0,0,.55);padding:.4vw .8vw}
+.adbar{position:absolute;left:0;bottom:0;height:.5vw;background:#ffcc00;z-index:5;width:0}
+.ads.run .adbar{transition:width linear;width:100%}
+.adscene{position:absolute;inset:0;opacity:0;visibility:hidden;transition:opacity .5s,visibility 0s .5s}
+.adscene.on{opacity:1;visibility:visible;transition:opacity .5s}
+/* Bumper */
+.adbump{display:grid;place-items:center;background:#ffcc00 radial-gradient(#e6b800 22%,transparent 23%) 0 0/2.2vw 2.2vw}
+.adbump b{font:400 11vw/1 var(--fd);letter-spacing:.04em;color:#fff;-webkit-text-stroke:.35vw #111;paint-order:stroke fill;text-shadow:.6vw .6vw 0 #111;transform:rotate(-4deg)}
+.adbump.on b{animation:bang .6s cubic-bezier(.2,1.8,.4,1) both}
+.adbump small{position:absolute;bottom:6vw;left:0;right:0;text-align:center;font:700 2vw var(--fb)}
+/* Spot Minimarli: ruhig, handgemacht, Jesmonite-Terrazzo */
+.admm{background:#f3ece3;color:#3b2f2a;font-family:'Fraunces',Georgia,serif;display:grid;grid-template-columns:1fr 1.15fr}
+.mmimg{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2vw;border-right:.3vw solid #3b2f2a;background:#ebe1d5;
+ background-image:radial-gradient(circle at 12% 18%,#e9b9a7 .45vw,transparent .5vw),radial-gradient(circle at 70% 82%,#b9c7b0 .6vw,transparent .65vw),radial-gradient(circle at 88% 26%,#d8c3a5 .35vw,transparent .4vw),radial-gradient(circle at 34% 72%,#e9b9a7 .3vw,transparent .35vw);background-size:9vw 9vw}
+.mmlogo{position:relative;width:24vw;height:24vw;border-radius:50%;border:.5vw solid #3b2f2a;overflow:hidden;background:#f3ece3 center/cover;box-shadow:.8vw .8vw 0 #c9a998;display:grid;place-items:center;font:600 9vw/1 'Fraunces',serif;color:#c26a4a}
+.mmlogo img{width:100%;height:100%;object-fit:cover;display:block}
+.mmmeta{font:400 1.5vw/1.4 'Outfit',sans-serif;text-align:center;color:#6d5a50}
+.mmtxt{padding:5vw 4vw 4vw;display:flex;flex-direction:column;gap:1.4vw}
+.mmtxt h3{margin:0;font-weight:600;font-size:6.4vw;line-height:.95;letter-spacing:-.02em}
+.mmtxt .sub{font-size:2.1vw;line-height:1.25;font-style:italic;color:#7a5a4c}
+.mmtxt p{margin:0;font:300 1.65vw/1.45 'Outfit',sans-serif;max-width:34ch}
+.mmlist{list-style:none;margin:0;padding:0;font:400 1.6vw/1 'Outfit',sans-serif;display:flex;flex-direction:column;gap:.7vw}
+.mmlist li{display:flex;justify-content:space-between;gap:2vw;border-bottom:.12vw dashed #b9a596;padding-bottom:.6vw;max-width:32vw}
+.mmlist b{font-weight:500}
+.adfoot{margin-top:auto;display:flex;align-items:center;gap:1.6vw}
+.adqr{width:9.5vw;height:9.5vw;background:#fff;padding:.5vw;flex:none}
+.adfoot small{display:block;font:300 1.3vw/1.4 'Outfit',sans-serif}
+.adfoot strong{display:block;font:500 1.9vw/1.2 'Outfit',sans-serif}
+.mmstar{color:#c26a4a;letter-spacing:.1em}
+/* Spot essenstest: dunkles Grün, Serifen wie die Website */
+.ades{background:#0f2118;color:#f4f2ea;font-family:'Outfit',sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:2vw;padding:4vw}
+.ades .es-brand{font:400 1.8vw/1 'Outfit',sans-serif;letter-spacing:.02em;color:#a9b8ad}
+.ades h3{margin:0;font:500 7vw/1 'Cormorant Garamond',Georgia,serif;letter-spacing:-.01em}
+.ades .stars{display:flex;gap:.8vw;color:#b7e36b}
+.ades .stars svg{width:1.6vw;height:1.6vw}
+.ades p{margin:0;max-width:50ch;font:300 1.8vw/1.5 'Outfit',sans-serif;color:#d5ddd6}
+.ades .testers{display:flex;gap:1.2vw}
+.ades .testers span{width:4.2vw;height:4.2vw;border-radius:50%;border:.15vw solid #b7e36b;display:grid;place-items:center;font:500 1.9vw 'Cormorant Garamond',serif;color:#b7e36b}
+.ades .adfoot{margin:1vw 0 0;text-align:left}
+.ades .adfoot small{color:#a9b8ad}
+.ades .wink{font:400 1.3vw 'Outfit',sans-serif;color:#56645b}
+@media (prefers-reduced-motion:reduce){.adbump.on b{animation:none}}
 /* Stunden-News */
 .news{position:fixed;inset:6.2vw 1.2vw 1.2vw;z-index:20;border:.5vw solid #111;box-shadow:.8vw .8vw 0 #111;background:#ffcc00;overflow:hidden;
  display:flex;flex-direction:column;opacity:0;transform:scale(.6) rotate(-4deg);transition:opacity .35s,transform .55s cubic-bezier(.2,1.6,.4,1)}
@@ -280,6 +325,30 @@ tr.first td{background:#fff3bf}
     <div class="clock" id="clock">--:--</div>
   </div>
   <div class="news" id="news" hidden></div>
+  <div class="ads" id="ads" hidden aria-label="Werbepause">
+    <div class="adtag">Werbung</div><div class="adbar" id="adbar"></div>
+    <div class="adscene adbump" data-t="2600"><b>Werbung!</b><small>Gleich geht's weiter mit dem Marathon.</small></div>
+    <div class="adscene admm" data-t="19000">
+      <div class="mmimg"><div class="mmlogo">M<img src="https://i.etsystatic.com/24857146/r/isla/606bb5/73600511/isla_180x180.73600511_c8z1np6m.jpg" alt="Minimarli-Logo" referrerpolicy="no-referrer" onerror="this.remove()" style="position:absolute;width:24vw;height:24vw;border-radius:50%"></div>
+        <div class="mmmeta">Auf Etsy seit 2020<br>591 Verkäufe</div></div>
+      <div class="mmtxt">
+        <h3>Minimarli</h3>
+        <div class="sub">Handgemacht in Stuttgart</div>
+        <p>Untersetzer, Teelichthalter und Kartenhalter aus Jesmonite, dazu moderne Fußmatten. Gemacht von Marlene, ja genau, die vom Catering.</p>
+        <ul class="mmlist"><li><span>Fußmatte Monstera</span><b>39,99 €</b></li><li><span>Untersetzer, 4er-Set</span><b>ab 14,99 €</b></li><li><span>Teelichthalter rund</span><b>9,99 €</b></li></ul>
+        <div class="adfoot"><img class="adqr" src="ads/qr-minimarli.svg" alt="QR-Code zum Etsy-Shop"><div><span class="mmstar">★★★★★</span><strong>4,9 von 5 bei 141 Bewertungen</strong><small>etsy.com/shop/Minimarli · Instagram @mini.marli</small></div></div>
+      </div>
+    </div>
+    <div class="adscene ades" data-t="17000">
+      <div class="es-brand">essenstest</div>
+      <h3>Ehrlich verkostet.<br>Mit Sorgfalt bewertet.</h3>
+      <div class="stars"><svg viewBox="0 0 24 24"><polygon fill="currentColor" points="12,2 13.5,8.3 19.1,4.9 15.7,10.5 22,12 15.7,13.5 19.1,19.1 13.5,15.7 12,22 10.5,15.7 4.9,19.1 8.3,13.5 2,12 8.3,10.5 4.9,4.9 10.5,8.3"/></svg><svg viewBox="0 0 24 24"><polygon fill="currentColor" points="12,2 13.5,8.3 19.1,4.9 15.7,10.5 22,12 15.7,13.5 19.1,19.1 13.5,15.7 12,22 10.5,15.7 4.9,19.1 8.3,13.5 2,12 8.3,10.5 4.9,4.9 10.5,8.3"/></svg><svg viewBox="0 0 24 24"><polygon fill="currentColor" points="12,2 13.5,8.3 19.1,4.9 15.7,10.5 22,12 15.7,13.5 19.1,19.1 13.5,15.7 12,22 10.5,15.7 4.9,19.1 8.3,13.5 2,12 8.3,10.5 4.9,4.9 10.5,8.3"/></svg></div>
+      <p>Tim, Sven und Maik testen Lebensmittel blind und vergeben Punkte. Mit Ranglisten, Preis-Leistung und ehrlicher Meinung.</p>
+      <div class="testers"><span>T</span><span>S</span><span>M</span></div>
+      <div class="adfoot"><img class="adqr" src="ads/qr-essenstest.svg" alt="QR-Code zu essenstest"><div><strong>essen.foodguide-by-mbft.de</strong><small>Unabhängig, ohne Werbung, ohne Tracking.</small></div></div>
+      <div class="wink">Diese Werbung ist die einzige Ausnahme.</div>
+    </div>
+  </div>
   <button class="snd" id="snd" type="button">🔇 Klicken für Ton</button>
   <div class="stage" id="stage"><div class="panel on"><div class="empty">Lade Leaderboard …</div></div></div>
   <div class="dots" id="dots"></div>
@@ -527,11 +596,28 @@ function show(){
 let lastTicker="";
 function renderTicker(){if(!C.ticker)return;const t=C.ticker.map(s=>"+++ "+s+" ").join("")+"+++";if(t===lastTicker)return;lastTicker=t;
   const el=document.getElementById("ticker");el.textContent=t;el.style.setProperty("--dur",Math.max(20,Math.round(t.length/7))+"s");}
+// Werbepause: jede Stunde zur halben Stunde, mit W von Hand
+let adHour=-1,adT=[];
+function showAds(){
+  const el=document.getElementById("ads");if(!el||!el.hidden)return;
+  if(!document.getElementById("news").hidden)return;
+  const sc=[...el.querySelectorAll(".adscene")],bar=document.getElementById("adbar");
+  const total=sc.reduce((a,x)=>a+Number(x.dataset.t),0);
+  adT.forEach(clearTimeout);adT=[];
+  el.hidden=false;el.classList.remove("run");bar.style.transitionDuration="0s";
+  requestAnimationFrame(()=>{el.classList.add("on");requestAnimationFrame(()=>{bar.style.transitionDuration=total+"ms";el.classList.add("run");});});
+  SND.jingle&&SND.jingle();
+  let t=0;sc.forEach((x,i)=>{adT.push(setTimeout(()=>{sc.forEach(y=>y.classList.remove("on"));x.classList.add("on");},t));t+=Number(x.dataset.t);});
+  adT.push(setTimeout(hideAds,total));
+}
+function hideAds(){const el=document.getElementById("ads");if(!el||el.hidden)return;adT.forEach(clearTimeout);adT=[];el.classList.remove("on");
+  setTimeout(()=>{el.hidden=true;el.classList.remove("run");el.querySelectorAll(".adscene").forEach(y=>y.classList.remove("on"));},450);}
 // Live-Ticker: alle 20 Minuten für 2 Minuten (zur vollen, 20. und 40. Minute)
 const TICKER_EVERY=20,TICKER_FOR=2;
 function tick(){
   const now=BSM.nowMin();
   {const dd=new Date();if(dd.getMinutes()===0&&dd.getSeconds()<50&&newsHour!==dd.getHours()&&C){newsHour=dd.getHours();showNews();}}
+  {const dd=new Date();if(dd.getMinutes()===30&&dd.getSeconds()<50&&adHour!==dd.getHours()&&C){adHour=dd.getHours();showAds();}}
   const d=new Date(),on=d.getMinutes()%TICKER_EVERY<TICKER_FOR;
   document.getElementById("tickerBox").classList.toggle("off",!on);
   document.getElementById("clock").textContent=fmtClock(now);
@@ -542,7 +628,7 @@ function load(){BSM.loadState("").then(st=>{S=st;C=BSM.compute(S);renderTicker()
 load();setInterval(load,15000);setInterval(tick,1000);
 setInterval(()=>{if(!C)return;C=BSM.compute(S);idx=(idx+1)%Math.max(1,build().length);show();},20000);
 document.addEventListener("keydown",e=>{if(!C)return;if(e.key==="ArrowRight"){idx=(idx+1)%panels.length;show();}if(e.key==="ArrowLeft"){idx=(idx-1+panels.length)%panels.length;show();}
-  if(e.key==="n")showNews(true);if(e.key==="m"){SND.muted=!SND.muted;if(SND.muted)SND.stopBed();updateSoundBtn();}if(e.key==="Escape")hideNews();if(e.key==="f")document.documentElement.requestFullscreen?.().catch(()=>{});});
+  if(e.key==="n")showNews(true);if(e.key==="m"){SND.muted=!SND.muted;if(SND.muted)SND.stopBed();updateSoundBtn();}if(e.key==="Escape"){hideNews();hideAds();}if(e.key==="w")showAds();if(e.key==="f")document.documentElement.requestFullscreen?.().catch(()=>{});});
 document.addEventListener("dblclick",()=>document.documentElement.requestFullscreen?.().catch(()=>{}));
 </script>
 </body>
