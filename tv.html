@@ -297,6 +297,28 @@ tr.first td{background:#fff3bf}
 .escard .u{font:700 2vw/1.15 'Outfit',sans-serif}
 .escard .s{font:400 1.3vw/1.45 'Outfit',sans-serif;color:rgba(255,255,255,.85)}
 .essticker{position:absolute;right:-3vw;top:-7vw;width:10vw;height:10vw;border-radius:50%;background:#b7e36b;color:#16261c;box-shadow:0 .3vw 0 0 #16261c;transform:rotate(-10deg);display:flex;flex-direction:column;align-items:center;justify-content:center}
+/* Auftritt essenstest */
+.ades .c1,.ades .c2,.ades .eslogo,.ades h3 span,.ades p,.escard,.escard img,.escard .u,.essticker{opacity:0}
+.ades.on .c1{animation:esgrow 1.2s cubic-bezier(.2,1,.3,1) .1s both}
+.ades.on .c2{animation:esgrow 1.2s cubic-bezier(.2,1,.3,1) .3s both}
+.ades.on .eslogo{animation:esslide .6s cubic-bezier(.2,1.4,.4,1) .5s both}
+.ades h3 span{display:inline-block}
+.ades.on h3 span{animation:esword .55s cubic-bezier(.2,1.6,.4,1) both}
+.ades.on h3 span:nth-child(1){animation-delay:1.1s}.ades.on h3 span:nth-child(2){animation-delay:1.5s}.ades.on h3 span:nth-child(4){animation-delay:1.9s}
+.ades.on p{animation:esfade .7s ease 2.6s both}
+.ades.on .escard{animation:escard .8s cubic-bezier(.2,1.3,.4,1) 3.3s both}
+.ades.on .escard img{animation:espop .5s cubic-bezier(.2,1.8,.4,1) 4s both}
+.ades.on .escard .u{animation:esfade .5s ease 4.4s both}
+.ades.on .essticker{animation:esstamp .5s cubic-bezier(.2,1.8,.4,1) 5.2s both,eswob 2.4s ease-in-out 6s infinite}
+@keyframes esgrow{0%{opacity:0;transform:scale(.2)}100%{opacity:1;transform:none}}
+@keyframes esslide{0%{opacity:0;transform:translateX(-4vw)}100%{opacity:1;transform:none}}
+@keyframes esword{0%{opacity:0;transform:translateY(3vw) scale(.8)}100%{opacity:1;transform:none}}
+@keyframes esfade{0%{opacity:0;transform:translateY(1vw)}100%{opacity:1;transform:none}}
+@keyframes escard{0%{opacity:0;transform:translateX(12vw) rotate(4deg)}100%{opacity:1;transform:none}}
+@keyframes espop{0%{opacity:0;transform:scale(.4)}100%{opacity:1;transform:none}}
+@keyframes esstamp{0%{opacity:0;transform:rotate(-40deg) scale(2.2)}100%{opacity:1;transform:rotate(-10deg) scale(1)}}
+@keyframes eswob{0%,100%{transform:rotate(-10deg)}50%{transform:rotate(-4deg) scale(1.05)}}
+@media (prefers-reduced-motion:reduce){.ades .c1,.ades .c2,.ades .eslogo,.ades h3 span,.ades p,.escard,.escard img,.escard .u,.essticker{opacity:1;animation:none!important}}
 .essticker b{font:800 2.5vw/1 'Outfit',sans-serif}
 .essticker span{font:600 1.1vw/1.2 'Outfit',sans-serif}
 @media (prefers-reduced-motion:reduce){.adbump.on b{animation:none}}
@@ -362,7 +384,7 @@ tr.first td{background:#fff3bf}
       <span class="c1" aria-hidden="true"></span><span class="c2" aria-hidden="true"></span>
       <div>
         <div class="eslogo"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="50" fill="#1f6b3e"/><g transform="translate(22 16) scale(0.8)" fill="#fff"><rect x="14" y="4" width="9" height="30" rx="4.5"/><rect x="30.5" y="4" width="9" height="30" rx="4.5"/><rect x="47" y="4" width="9" height="30" rx="4.5"/><path d="M14 28 H56 V34 A21 21 0 0 1 14 34 Z"/><rect x="29.5" y="48" width="11" height="40" rx="5.5"/></g></svg><span>essens<b>test</b></span></div>
-        <h3>Was schmeckt<br>wirklich?</h3>
+        <h3><span>Was</span> <span>schmeckt</span><br><span>wirklich?</span></h3>
         <p>Tim, Sven und Maik testen Lebensmittel blind und vergeben Punkte. Mit Bestenliste, Preis-Leistung und jeder ehrlichen Note.</p>
       </div>
       <div>
