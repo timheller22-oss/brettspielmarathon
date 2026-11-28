@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light only">
 <title>Leaderboard · Tims Brettspielmarathon</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@400;700&family=Cormorant+Garamond:wght@500;600&family=Outfit:wght@300;400;500&family=Fraunces:opsz,wght@9..144,400;9..144,600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@400;700&family=Cormorant+Garamond:wght@500;600&family=Outfit:wght@300;400;500&family=Poppins:wght@400;500;600&display=swap">
 <style>
 :root{color-scheme:light only;--ink:#111;--red:#ff3d3d;--yel:#ffcc00;--blue:#00a6ed;--green:#7cc000;--orange:#ff7a00;--lila:#d63af9;
  --fd:"Bangers",Impact,sans-serif;--fb:"Comic Neue",system-ui,sans-serif}
@@ -247,20 +247,29 @@ tr.first td{background:#fff3bf}
 .adbump b{font:400 11vw/1 var(--fd);letter-spacing:.04em;color:#fff;-webkit-text-stroke:.35vw #111;paint-order:stroke fill;text-shadow:.6vw .6vw 0 #111;transform:rotate(-4deg)}
 .adbump.on b{animation:bang .6s cubic-bezier(.2,1.8,.4,1) both}
 .adbump small{position:absolute;bottom:6vw;left:0;right:0;text-align:center;font:700 2vw var(--fb)}
-/* Spot Minimarli: ruhig, handgemacht, Jesmonite-Terrazzo */
-.admm{background:#f3ece3;color:#3b2f2a;font-family:'Fraunces',Georgia,serif;display:grid;grid-template-columns:1fr 1.15fr}
-.mmimg{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2vw;border-right:.3vw solid #3b2f2a;background:#ebe1d5;
- background-image:radial-gradient(circle at 12% 18%,#e9b9a7 .45vw,transparent .5vw),radial-gradient(circle at 70% 82%,#b9c7b0 .6vw,transparent .65vw),radial-gradient(circle at 88% 26%,#d8c3a5 .35vw,transparent .4vw),radial-gradient(circle at 34% 72%,#e9b9a7 .3vw,transparent .35vw);background-size:9vw 9vw}
-.mmlogo{position:relative;width:24vw;height:24vw;border-radius:50%;border:.5vw solid #3b2f2a;overflow:hidden;background:#f3ece3 center/cover;box-shadow:.8vw .8vw 0 #c9a998;display:grid;place-items:center;font:600 9vw/1 'Fraunces',serif;color:#c26a4a}
-.mmlogo img{width:100%;height:100%;object-fit:cover;display:block}
-.mmmeta{font:400 1.5vw/1.4 'Outfit',sans-serif;text-align:center;color:#6d5a50}
-.mmtxt{padding:5vw 4vw 4vw;display:flex;flex-direction:column;gap:1.4vw}
-.mmtxt h3{margin:0;font-weight:600;font-size:6.4vw;line-height:.95;letter-spacing:-.02em}
-.mmtxt .sub{font-size:2.1vw;line-height:1.25;font-style:italic;color:#7a5a4c}
-.mmtxt p{margin:0;font:300 1.65vw/1.45 'Outfit',sans-serif;max-width:34ch}
-.mmlist{list-style:none;margin:0;padding:0;font:400 1.6vw/1 'Outfit',sans-serif;display:flex;flex-direction:column;gap:.7vw}
-.mmlist li{display:flex;justify-content:space-between;gap:2vw;border-bottom:.12vw dashed #b9a596;padding-bottom:.6vw;max-width:32vw}
-.mmlist b{font-weight:500}
+/* Spot Minimarli: Shop-Look, Elektroblau auf Off-White, organische Formen */
+.admm{--mb:#2832f9;background:#fdfef7;color:#1d1d1f;font-family:'Poppins',sans-serif;padding:3.4vw 4.5vw 3vw;display:flex;flex-direction:column;gap:2.2vw}
+.admm .blob{position:absolute;z-index:0;fill:var(--mb)}
+.admm .b1{top:-13vw;right:-10vw;width:34vw}
+.admm .b2{bottom:-21vw;right:-6vw;width:40vw}
+.admm>*:not(.blob){position:relative;z-index:1}
+.mmhead{display:flex;align-items:center;gap:2vw}
+.mmhead img{width:7vw;height:7vw;border-radius:1vw;background:#fff;box-shadow:0 .3vw 1.2vw rgba(40,50,249,.18)}
+.mmword{font:600 5.2vw/1 'Poppins',sans-serif;letter-spacing:.55em;margin-right:-.55em}
+.mmsub{font:400 1.6vw/1.3 'Poppins',sans-serif;color:#555;margin-top:.6vw;letter-spacing:.02em}
+.mmgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.6vw;flex:1;min-height:0}
+.mmcard{display:flex;flex-direction:column;gap:.6vw;min-height:0}
+.mmcard img{width:100%;flex:1;min-height:0;object-fit:cover;border-radius:1.2vw;background:#eee}
+.mmcard span{font:400 1.25vw/1.25 'Poppins',sans-serif;color:#333}
+.mmcard b{font:600 1.5vw/1 'Poppins',sans-serif}
+.mmfoot{display:flex;align-items:center;gap:2.4vw}
+.mmfacts{display:flex;gap:2.4vw;font:400 1.5vw/1 'Poppins',sans-serif;align-items:center}
+.mmfacts b{font-weight:600}
+.mmfacts .st{color:#f5a623}
+.mmnote{font:400 1.3vw/1.4 'Poppins',sans-serif;color:#555;max-width:40ch}
+.mmqr{margin-left:auto;display:flex;align-items:center;gap:1.2vw;background:var(--mb);color:#fff;border-radius:1.4vw;padding:1vw 1.6vw 1vw 1vw;font:500 1.5vw/1.3 'Poppins',sans-serif}
+.mmqr img{width:8vw;height:8vw;background:#fff;border-radius:.6vw;padding:.4vw}
+.mmqr small{display:block;font-weight:400;font-size:1.1vw;opacity:.85}
 .adfoot{margin-top:auto;display:flex;align-items:center;gap:1.6vw}
 .adqr{width:9.5vw;height:9.5vw;background:#fff;padding:.5vw;flex:none}
 .adfoot small{display:block;font:300 1.3vw/1.4 'Outfit',sans-serif}
@@ -329,14 +338,13 @@ tr.first td{background:#fff3bf}
     <div class="adtag">Werbung</div><div class="adbar" id="adbar"></div>
     <div class="adscene adbump" data-t="2600"><b>Werbung!</b><small>Gleich geht's weiter mit dem Marathon.</small></div>
     <div class="adscene admm" data-t="19000">
-      <div class="mmimg"><div class="mmlogo">M<img src="https://i.etsystatic.com/24857146/r/isla/606bb5/73600511/isla_180x180.73600511_c8z1np6m.jpg" alt="Minimarli-Logo" referrerpolicy="no-referrer" onerror="this.remove()" style="position:absolute;width:24vw;height:24vw;border-radius:50%"></div>
-        <div class="mmmeta">Auf Etsy seit 2020<br>591 Verkäufe</div></div>
-      <div class="mmtxt">
-        <h3>Minimarli</h3>
-        <div class="sub">Handgemacht in Stuttgart</div>
-        <p>Untersetzer, Teelichthalter und Kartenhalter aus Jesmonite, dazu moderne Fußmatten. Gemacht von Marlene, ja genau, die vom Catering.</p>
-        <ul class="mmlist"><li><span>Fußmatte Monstera</span><b>39,99 €</b></li><li><span>Untersetzer, 4er-Set</span><b>ab 14,99 €</b></li><li><span>Teelichthalter rund</span><b>9,99 €</b></li></ul>
-        <div class="adfoot"><img class="adqr" src="ads/qr-minimarli.svg" alt="QR-Code zum Etsy-Shop"><div><span class="mmstar">★★★★★</span><strong>4,9 von 5 bei 141 Bewertungen</strong><small>etsy.com/shop/Minimarli · Instagram @mini.marli</small></div></div>
+      <svg class="blob b1" viewBox="0 0 200 200" aria-hidden="true"><path d="M44,-58C57,-46,66,-31,72,-13C78,6,81,28,71,42C61,57,38,64,16,70C-6,76,-28,81,-46,72C-63,63,-76,40,-79,17C-82,-6,-74,-29,-60,-43C-46,-58,-23,-63,-3,-59C16,-55,32,-71,44,-58Z" transform="translate(100 100)"/></svg><svg class="blob b2" viewBox="0 0 200 200" aria-hidden="true"><path d="M38,-49C52,-40,68,-31,73,-17C78,-3,72,16,62,31C52,46,38,57,21,64C4,71,-16,74,-34,67C-52,60,-68,43,-74,23C-80,3,-76,-20,-64,-36C-52,-52,-32,-61,-13,-63C6,-65,24,-58,38,-49Z" transform="translate(100 100)"/></svg>
+      <div class="mmhead"><img src="ads/mm-logo.jpg" alt="Minimarli-Logo"><div><div class="mmword">minimarli</div><div class="mmsub">Handgemacht in Stuttgart, aus Jesmonite und mit Liebe</div></div></div>
+      <div class="mmgrid"><div class="mmcard"><img src="ads/mm-untersetzer.jpg" alt=""><span>Untersetzer 4er-Set aus Jesmonite</span><b>ab 14,99 €</b></div><div class="mmcard"><img src="ads/mm-herz.jpg" alt=""><span>Kartenhalter in Herzform</span><b>ab 2,79 €</b></div><div class="mmcard"><img src="ads/mm-teelicht.jpg" alt=""><span>Runder Teelichthalter</span><b>9,99 €</b></div><div class="mmcard"><img src="ads/mm-smiley.jpg" alt=""><span>Moderne Fußmatte Smiley</span><b>34,99 €</b></div></div>
+      <div class="mmfoot">
+        <div><div class="mmfacts"><span><span class="st">★</span> <b>4,9</b> (141)</span><span><b>591</b> Verkäufe</span><span><b>6 Jahre</b> auf Etsy</span></div>
+        <div class="mmnote">Von Marlene, ja genau, die vom Catering heute.</div></div>
+        <div class="mmqr"><img src="ads/qr-minimarli.svg" alt="QR-Code zum Etsy-Shop"><div>Zum Shop<small>etsy.com/shop/Minimarli</small></div></div>
       </div>
     </div>
     <div class="adscene ades" data-t="17000">
