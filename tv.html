@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light only">
 <title>Leaderboard · Tims Brettspielmarathon</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@400;700&family=Cormorant+Garamond:wght@500;600&family=Outfit:wght@300;400;500&family=Poppins:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600&display=swap">
 <style>
 :root{color-scheme:light only;--ink:#111;--red:#ff3d3d;--yel:#ffcc00;--blue:#00a6ed;--green:#7cc000;--orange:#ff7a00;--lila:#d63af9;
  --fd:"Bangers",Impact,sans-serif;--fb:"Comic Neue",system-ui,sans-serif}
@@ -259,6 +259,12 @@ tr.first td{background:#fff3bf}
 .mmsub{font:400 1.6vw/1.3 'Poppins',sans-serif;color:#555;margin-top:.6vw;letter-spacing:.02em}
 .mmgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.6vw;flex:1;min-height:0}
 .mmcard{display:flex;flex-direction:column;gap:.6vw;min-height:0}
+.admm .mmcard{opacity:0}
+.admm.on .mmcard{animation:mmpop .6s cubic-bezier(.2,1.6,.4,1) both}
+.admm.on .mmcard:nth-child(1){animation-delay:.9s}.admm.on .mmcard:nth-child(2){animation-delay:2.3s}
+.admm.on .mmcard:nth-child(3){animation-delay:3.7s}.admm.on .mmcard:nth-child(4){animation-delay:5.1s}
+@keyframes mmpop{0%{opacity:0;transform:scale(.5) translateY(3vw)}100%{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.admm .mmcard{opacity:1}.admm.on .mmcard{animation:none}}
 .mmcard img{width:100%;flex:1;min-height:0;object-fit:cover;border-radius:1.2vw;background:#eee}
 .mmcard span{font:400 1.25vw/1.25 'Poppins',sans-serif;color:#333}
 .mmcard b{font:600 1.5vw/1 'Poppins',sans-serif}
@@ -275,18 +281,24 @@ tr.first td{background:#fff3bf}
 .adfoot small{display:block;font:300 1.3vw/1.4 'Outfit',sans-serif}
 .adfoot strong{display:block;font:500 1.9vw/1.2 'Outfit',sans-serif}
 .mmstar{color:#c26a4a;letter-spacing:.1em}
-/* Spot essenstest: dunkles Grün, Serifen wie die Website */
-.ades{background:#0f2118;color:#f4f2ea;font-family:'Outfit',sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:2vw;padding:4vw}
-.ades .es-brand{font:400 1.8vw/1 'Outfit',sans-serif;letter-spacing:.02em;color:#a9b8ad}
-.ades h3{margin:0;font:500 7vw/1 'Cormorant Garamond',Georgia,serif;letter-spacing:-.01em}
-.ades .stars{display:flex;gap:.8vw;color:#b7e36b}
-.ades .stars svg{width:1.6vw;height:1.6vw}
-.ades p{margin:0;max-width:50ch;font:300 1.8vw/1.5 'Outfit',sans-serif;color:#d5ddd6}
-.ades .testers{display:flex;gap:1.2vw}
-.ades .testers span{width:4.2vw;height:4.2vw;border-radius:50%;border:.15vw solid #b7e36b;display:grid;place-items:center;font:500 1.9vw 'Cormorant Garamond',serif;color:#b7e36b}
-.ades .adfoot{margin:1vw 0 0;text-align:left}
-.ades .adfoot small{color:#a9b8ad}
-.ades .wink{font:400 1.3vw 'Outfit',sans-serif;color:#56645b}
+/* Spot essenstest: Look der Website (weiß, Waldgrün, Limette, Outfit) */
+.ades{--ea:#1f6b3e;background:#fff;color:#16261c;font-family:'Outfit',sans-serif;display:grid;grid-template-columns:1.25fr 1fr;gap:4vw;align-items:center;padding:4vw 5vw}
+.ades .c1{position:absolute;right:-9vw;top:-9vw;width:28vw;height:28vw;border-radius:50%;background:#e3f1e7}
+.ades .c2{position:absolute;left:-7vw;bottom:-8vw;width:18vw;height:18vw;border-radius:50%;background:#e1edf0}
+.ades>div{position:relative}
+.eslogo{display:flex;align-items:center;gap:1vw;font:500 3vw/1 'Outfit',sans-serif;letter-spacing:-.01em}
+.eslogo svg{width:4.4vw;height:4.4vw}
+.eslogo b{font-weight:600;color:var(--ea)}
+.ades h3{margin:3vw 0 2vw;font:800 6.6vw/.98 'Outfit',sans-serif;letter-spacing:-.03em}
+.ades p{margin:0;max-width:34ch;font:400 1.75vw/1.5 'Outfit',sans-serif;color:#3d4b42}
+.escard{background:var(--ea);color:#fff;border-radius:2.6vw;padding:2.6vw;display:flex;flex-direction:column;align-items:center;gap:1.4vw;text-align:center}
+.escard img{width:15vw;height:15vw;background:#fff;border-radius:1.2vw;padding:.8vw}
+.escard .k{font:600 1.3vw/1 'Outfit',sans-serif;color:#b7e36b}
+.escard .u{font:700 2vw/1.15 'Outfit',sans-serif}
+.escard .s{font:400 1.3vw/1.45 'Outfit',sans-serif;color:rgba(255,255,255,.85)}
+.essticker{position:absolute;right:-3vw;top:-7vw;width:10vw;height:10vw;border-radius:50%;background:#b7e36b;color:#16261c;box-shadow:0 .3vw 0 0 #16261c;transform:rotate(-10deg);display:flex;flex-direction:column;align-items:center;justify-content:center}
+.essticker b{font:800 2.5vw/1 'Outfit',sans-serif}
+.essticker span{font:600 1.1vw/1.2 'Outfit',sans-serif}
 @media (prefers-reduced-motion:reduce){.adbump.on b{animation:none}}
 /* Stunden-News */
 .news{position:fixed;inset:6.2vw 1.2vw 1.2vw;z-index:20;border:.5vw solid #111;box-shadow:.8vw .8vw 0 #111;background:#ffcc00;overflow:hidden;
@@ -347,13 +359,16 @@ tr.first td{background:#fff3bf}
       </div>
     </div>
     <div class="adscene ades" data-t="17000">
-      <div class="es-brand">essenstest</div>
-      <h3>Ehrlich verkostet.<br>Mit Sorgfalt bewertet.</h3>
-      <div class="stars"><svg viewBox="0 0 24 24"><polygon fill="currentColor" points="12,2 13.5,8.3 19.1,4.9 15.7,10.5 22,12 15.7,13.5 19.1,19.1 13.5,15.7 12,22 10.5,15.7 4.9,19.1 8.3,13.5 2,12 8.3,10.5 4.9,4.9 10.5,8.3"/></svg><svg viewBox="0 0 24 24"><polygon fill="currentColor" points="12,2 13.5,8.3 19.1,4.9 15.7,10.5 22,12 15.7,13.5 19.1,19.1 13.5,15.7 12,22 10.5,15.7 4.9,19.1 8.3,13.5 2,12 8.3,10.5 4.9,4.9 10.5,8.3"/></svg><svg viewBox="0 0 24 24"><polygon fill="currentColor" points="12,2 13.5,8.3 19.1,4.9 15.7,10.5 22,12 15.7,13.5 19.1,19.1 13.5,15.7 12,22 10.5,15.7 4.9,19.1 8.3,13.5 2,12 8.3,10.5 4.9,4.9 10.5,8.3"/></svg></div>
-      <p>Tim, Sven und Maik testen Lebensmittel blind und vergeben Punkte. Mit Ranglisten, Preis-Leistung und ehrlicher Meinung.</p>
-      <div class="testers"><span>T</span><span>S</span><span>M</span></div>
-      <div class="adfoot"><img class="adqr" src="ads/qr-essenstest.svg" alt="QR-Code zu essenstest"><div><strong>essen.foodguide-by-mbft.de</strong><small>Unabhängig, ohne Werbung, ohne Tracking.</small></div></div>
-      <div class="wink">Diese Werbung ist die einzige Ausnahme.</div>
+      <span class="c1" aria-hidden="true"></span><span class="c2" aria-hidden="true"></span>
+      <div>
+        <div class="eslogo"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="50" fill="#1f6b3e"/><g transform="translate(22 16) scale(0.8)" fill="#fff"><rect x="14" y="4" width="9" height="30" rx="4.5"/><rect x="30.5" y="4" width="9" height="30" rx="4.5"/><rect x="47" y="4" width="9" height="30" rx="4.5"/><path d="M14 28 H56 V34 A21 21 0 0 1 14 34 Z"/><rect x="29.5" y="48" width="11" height="40" rx="5.5"/></g></svg><span>essens<b>test</b></span></div>
+        <h3>Was schmeckt<br>wirklich?</h3>
+        <p>Tim, Sven und Maik testen Lebensmittel blind und vergeben Punkte. Mit Bestenliste, Preis-Leistung und jeder ehrlichen Note.</p>
+      </div>
+      <div>
+        <div class="escard"><span class="k">Ehrlich verkostet. Mit Sorgfalt bewertet.</span><img src="ads/qr-essenstest.svg" alt="QR-Code zu essenstest"><span class="u">essen.foodguide-by-mbft.de</span><span class="s">Unabhängig, ohne Werbung, ohne Tracking</span></div>
+        <div class="essticker" aria-hidden="true"><b>Neu</b><span>jetzt online</span></div>
+      </div>
     </div>
   </div>
   <button class="snd" id="snd" type="button">🔇 Klicken für Ton</button>
